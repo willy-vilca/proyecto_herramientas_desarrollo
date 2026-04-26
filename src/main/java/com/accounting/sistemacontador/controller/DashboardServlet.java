@@ -31,6 +31,10 @@ public class DashboardServlet extends HttpServlet {
         request.setAttribute("ingresos", summary[0]);
         request.setAttribute("gastos", summary[1]);
         request.setAttribute("balance", summary[2]);
-            
+
+        //ultimos movimientos del usuario
+        List<Transaction> ultimosMovimientos = transactionDAO.getLastMovementsByUser(user.getUserId());
+        request.setAttribute("ultimosMovimientos", ultimosMovimientos);
+        request.getRequestDispatcher("views/dashboard.jsp").forward(request, response);    
     }
 }
