@@ -24,6 +24,7 @@ public class LoginServlet extends HttpServlet {
 
         User loggedUser = dao.login(user);
 
+        // Crear sesión y redirigir
         HttpSession session = request.getSession();
         if (loggedUser != null) {
             session.setAttribute("user", loggedUser);
