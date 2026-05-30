@@ -11,6 +11,18 @@ function setDeleteMovement(id, clientId) {
         + clientId;
 }
 
+function setDeleteCategory(id){
+
+    const btn =
+        document.getElementById(
+            "confirmDeleteCategory"
+        );
+
+    btn.href =
+        "/categories/delete?id="
+        + id;
+}
+
 //cargar data en el form de modificar movimiento
 function loadMovementData(id, type, amount, date, description, categoryId) {
     document.getElementById("editId").value = id;
