@@ -7,7 +7,7 @@ import SistemaContador.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +55,7 @@ public class DashboardServiceImpl
             );
 
             t.setTransactionDate(
-                    ((Date) row[3]).toLocalDate()
+                    (LocalDate) row[3]
             );
 
             t.setDescription((String) row[4]);
