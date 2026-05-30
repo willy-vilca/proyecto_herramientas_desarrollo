@@ -65,6 +65,14 @@ public class DashboardController {
                 movimientos
         );
 
+        String primerNombre =
+                user.getFullName().split(" ")[0];
+
+        model.addAttribute(
+                "primerNombre",
+                primerNombre
+        );
+
         return "dashboard";
     }
 }
