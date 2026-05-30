@@ -13,6 +13,19 @@ public class AuthController {
 
     private final UserService userService;
 
+    @GetMapping("/login")
+    public String loginPage(HttpSession session) {
+
+        session.removeAttribute("error");
+
+        return "auth/login";
+    }
+
+    @GetMapping("/register")
+    public String registerPage() {
+        return "auth/register";
+    }
+
     @PostMapping("/login")
     public String login(
             @RequestParam String email,
