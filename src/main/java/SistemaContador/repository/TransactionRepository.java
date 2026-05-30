@@ -60,4 +60,60 @@ LIMIT 10
 """, nativeQuery = true)
     List<Object[]> findLastMovements(@Param("userId") Integer userId);
 
+
+    @Query(value = """
+SELECT
+t.transaction_id,
+t.client_id,
+t.category_id,
+c.name AS category_name,
+t.type,
+t.amount,
+t.transaction_date,
+t.description
+FROM transactions t
+LEFT JOIN categories c
+ON t.category_id = c.category_id
+WHERE t.client_id = :clientId
+ORDER BY t.transaction_date DESC
+""",
+            nativeQuery = true)
+    List<Object[]> findMovementsByClient(
+            @Param("clientId") Integer clientId
+    );
+
+
+    @Query(value = """
+SELECT
+COALESCE(SUM(
+CASE
+WHEN type='INGRESO'
+THEN amount
+END
+),0)
+FROM transactions
+WHERE client_id = :clientId
+""",
+            nativeQuery = true)
+    Double totalIngresosCliente(
+            @Param("clientId") Integer clientId
+    );
+
+
+    @Query(value = """
+SELECT
+COALESCE(SUM(
+CASE
+WHEN type='GASTO'
+THEN amount
+END
+),0)
+FROM transactions
+WHERE client_id = :clientId
+""",
+            nativeQuery = true)
+    Double totalGastosCliente(
+            @Param("clientId") Integer clientId
+    );
+
 }
