@@ -406,14 +406,21 @@
                                     data-bs-toggle="modal"
                                     data-bs-target="#editMovementModal"
 
-                                    th:onclick="|loadMovementData(
-                                                ${m.transactionId},
-                                                '${m.type}',
-                                                ${m.amount},
-                                                '${m.transactionDate}',
-                                                '${m.description}',
-                                                ${m.categoryId}
-                                                )|">
+                                    th:data-id="${m.transactionId}"
+                                    th:data-type="${m.type}"
+                                    th:data-amount="${m.amount}"
+                                    th:data-date="${m.transactionDate}"
+                                    th:data-description="${m.description}"
+                                    th:data-category="${m.categoryId}"
+
+                                    onclick="loadMovementData(
+                                        this.dataset.id,
+                                        this.dataset.type,
+                                        this.dataset.amount,
+                                        this.dataset.date,
+                                        this.dataset.description,
+                                        this.dataset.category
+                                    )">
 
                                 Editar
 
