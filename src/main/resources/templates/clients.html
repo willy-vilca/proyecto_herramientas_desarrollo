@@ -55,7 +55,8 @@
                     Dashboard
                 </a>
 
-                <a th:href="@{/clients}">
+                <a th:href="@{/clients}"
+                   class="active">
                     Clientes
                 </a>
 
@@ -183,62 +184,161 @@
 
             <div class="table-container shadow-sm">
 
-                <div class="navbar py-1 mb-4"></div>
+                <div class="table-toolbar">
 
-                <h5 class="mb-3">
-                    Listado de Clientes
-                </h5>
+                    <div class="table-toolbar-title">
+
+                        <h5>
+                            Listado de Clientes
+                        </h5>
+
+                        <p>
+                            Consulta rápidamente tus clientes activos y sus datos de contacto principales.
+                        </p>
+
+                    </div>
+
+                    <div class="table-toolbar-meta">
+
+                        <span class="table-pill">
+                            <strong id="clientsVisibleCount"
+                                    th:text="${#lists.size(clients)}">
+                            </strong>
+                            visibles
+                        </span>
+
+                        <span class="table-pill">
+                            Contactos y documentos
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="table-toolbar-tools">
+
+                    <input id="clientsSearch"
+                           class="form-control"
+                           type="search"
+                           placeholder="Buscar por nombre, documento, empresa, correo o telefono">
+
+                    <button id="exportClientsCsv"
+                            class="btn btn-secondary"
+                            type="button">
+                        Descargar CSV
+                    </button>
+
+                    <button id="clientsResetFilters"
+                            class="btn btn-secondary"
+                            type="button">
+                        Limpiar busqueda
+                    </button>
+
+                </div>
 
                 <div class="table-responsive-mobile">
 
-                    <table class="table table-hover align-middle">
+                    <table id="clientsTable"
+                           class="table table-hover align-middle">
 
                         <thead class="table-light">
 
                         <tr>
 
-                            <th>Nombre</th>
-                            <th>Documento</th>
-                            <th>Empresa</th>
-                            <th>Email</th>
-                            <th>Teléfono</th>
-                            <th>Acciones</th>
+                            <th>
+                                <button type="button"
+                                        class="table-sort"
+                                        data-table="clients"
+                                        data-sort-key="name">
+                                    Nombre
+                                </button>
+                            </th>
+                            <th>
+                                <button type="button"
+                                        class="table-sort"
+                                        data-table="clients"
+                                        data-sort-key="document">
+                                    Documento
+                                </button>
+                            </th>
+                            <th>
+                                <button type="button"
+                                        class="table-sort"
+                                        data-table="clients"
+                                        data-sort-key="company">
+                                    Empresa
+                                </button>
+                            </th>
+                            <th>
+                                <button type="button"
+                                        class="table-sort"
+                                        data-table="clients"
+                                        data-sort-key="email">
+                                    Email
+                                </button>
+                            </th>
+                            <th>
+                                <button type="button"
+                                        class="table-sort"
+                                        data-table="clients"
+                                        data-sort-key="phone">
+                                    Telefono
+                                </button>
+                            </th>
+                            <th class="actions-column">Acciones</th>
 
                         </tr>
 
                         </thead>
 
-                        <tbody>
+                        <tbody id="clientsTableBody">
 
-                            <tr th:each="c : ${clients}">
+                            <tr th:each="c : ${clients}"
+                                class="client-row"
+                                th:attr="data-name=${c.fullName},
+                                         data-document=${c.documentType + ' ' + c.documentNumber},
+                                         data-company=${c.companyName},
+                                         data-email=${c.email},
+                                         data-phone=${c.phone},
+                                         data-address=${c.address}">
 
                                 <td>
-                                    <strong th:text="${c.fullName}">
-                                    </strong>
+                                    <div class="cell-primary"
+                                         th:text="${c.fullName}">
+                                    </div>
+
+                                    <div class="cell-secondary"
+                                         th:text="${c.address}">
+                                    </div>
                                 </td>
 
                                 <td>
 
-                                    <span th:text="${c.documentType}">
+                                    <div class="cell-primary"
+                                         th:text="${c.documentType + ' - ' + c.documentNumber}">
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="cell-secondary"
+                                          th:text="${#strings.isEmpty(c.companyName) ? 'Sin empresa registrada' : c.companyName}">
                                     </span>
 
-                                    -
-
-                                    <span th:text="${c.documentNumber}">
-                                    </span>
-
                                 </td>
 
-                                <td th:text="${c.companyName}">
+                                <td class="cell-secondary"
+                                    th:text="${c.email}">
                                 </td>
 
-                                <td th:text="${c.email}">
+                                <td class="cell-primary"
+                                    th:text="${c.phone}">
                                 </td>
 
-                                <td th:text="${c.phone}">
-                                </td>
+                                <td class="actions-cell">
 
-                                <td>
+                                    <div class="table-actions">
 
                                     <button
                                             class="btn btn-warning btn-sm"
@@ -276,9 +376,33 @@
 
                                     </button>
 
+                                    </div>
+
                                 </td>
 
                             </tr>
+
+                            <tr th:if="${#lists.isEmpty(clients)}"
+                                class="empty-row">
+
+                                <td colspan="6">
+
+                                    <div class="empty-state">
+
+                                        <h6>
+                                            No hay clientes registrados
+                                        </h6>
+
+                                        <p>
+                                            Agrega tu primer cliente para comenzar a gestionar documentos, contactos y movimientos.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
                         </tbody>
 
                     </table>

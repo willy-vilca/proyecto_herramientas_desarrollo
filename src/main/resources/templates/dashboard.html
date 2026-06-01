@@ -51,7 +51,8 @@
 
                 <hr>
 
-                <a th:href="@{/dashboard}">
+                <a th:href="@{/dashboard}"
+                   class="active">
                     Dashboard
                 </a>
 
@@ -88,13 +89,21 @@
 
             <nav class="navbar page-header py-4 px-2 mb-4">
 
-                <h3>
+                <div>
 
-                    Bienvenido al sistema,
-                    <span th:text="${primerNombre}">
-                    </span>
+                    <h3>
 
-                </h3>
+                        Bienvenido al sistema,
+                        <span th:text="${primerNombre}">
+                        </span>
+
+                    </h3>
+
+                    <p>
+                        Revisa tus indicadores principales y la actividad financiera más reciente en un solo vistazo.
+                    </p>
+
+                </div>
 
             </nav>
 
@@ -111,9 +120,13 @@
                         <h3>
 
                             S/.
-                            <span th:text="${ingresos}"></span>
+                            <span th:text="${#numbers.formatDecimal(ingresos,1,2)}"></span>
 
                         </h3>
+
+                        <div class="metric-note">
+                            Flujo acumulado positivo registrado.
+                        </div>
 
                     </div>
 
@@ -128,9 +141,13 @@
                         <h3>
 
                             S/.
-                            <span th:text="${gastos}"></span>
+                            <span th:text="${#numbers.formatDecimal(gastos,1,2)}"></span>
 
                         </h3>
+
+                        <div class="metric-note">
+                            Egresos consolidados del periodo visible.
+                        </div>
 
                     </div>
 
@@ -145,9 +162,13 @@
                         <h3>
 
                             S/.
-                            <span th:text="${balance}"></span>
+                            <span th:text="${#numbers.formatDecimal(balance,1,2)}"></span>
 
                         </h3>
+
+                        <div class="metric-note">
+                            Resultado neto actual de tu operación.
+                        </div>
 
                     </div>
 
@@ -161,7 +182,33 @@
 
             <div class="card p-3">
 
-                <h5>Últimos movimientos</h5>
+                <div class="table-toolbar">
+
+                    <div class="table-toolbar-title">
+
+                        <h5>Últimos movimientos</h5>
+
+                        <p>
+                            Actividad reciente para un seguimiento rápido de clientes y operaciones.
+                        </p>
+
+                    </div>
+
+                    <div class="table-toolbar-meta">
+
+                        <span class="table-pill">
+                            <strong th:text="${#lists.size(ultimosMovimientos)}">
+                            </strong>
+                            movimientos
+                        </span>
+
+                        <span class="table-pill">
+                            Resumen operativo reciente
+                        </span>
+
+                    </div>
+
+                </div>
 
                 <div class="table-responsive-mobile">
 
@@ -173,8 +220,8 @@
 
                             <th>Tipo</th>
                             <th>Cliente</th>
-                            <th>Monto</th>
-                            <th>Fecha</th>
+                            <th class="amount-column">Monto</th>
+                            <th class="date-column">Fecha</th>
                             <th>Descripción</th>
 
                         </tr>
@@ -206,11 +253,34 @@
 
                             </td>
 
-                            <td th:text="${m.amount}"></td>
+                            <td class="amount-cell"
+                                th:text="'S/. ' + ${#numbers.formatDecimal(m.amount,1,2)}"></td>
 
-                            <td th:text="${m.transactionDate}"></td>
+                            <td class="date-cell"
+                                th:text="${#temporals.format(m.transactionDate, 'dd/MM/yyyy')}"></td>
 
                             <td th:text="${m.description}"></td>
+
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(ultimosMovimientos)}"
+                            class="empty-row">
+
+                            <td colspan="5">
+
+                                <div class="empty-state">
+
+                                    <h6>
+                                        Aún no hay movimientos registrados
+                                    </h6>
+
+                                    <p>
+                                        Cuando agregues ingresos o gastos, aparecerán aquí para darte una vista rápida.
+                                    </p>
+
+                                </div>
+
+                            </td>
 
                         </tr>
 

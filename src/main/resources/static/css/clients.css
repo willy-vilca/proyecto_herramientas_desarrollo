@@ -1,22 +1,25 @@
 .table-container {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
+    padding: 1.4rem;
 }
 
 .btn-custom {
-    background: #4ca1af;
-    color: white;
-    border-radius: 10px;
+    min-height: 48px;
 }
 
-.btn-custom:hover {
-    border-color: #4ca1af;
-    background:#3b8d99;
-    color: white;
+.table-light {
+    --bs-table-bg: transparent;
+}
+
+.table-container h5,
+.card h5 {
+    color: var(--text);
 }
 
 @media (max-width: 768px) {
+    .table-container {
+        padding: 1rem;
+    }
+
     .table-responsive-mobile {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -24,5 +27,11 @@
 
     .table-responsive-mobile table {
         min-width: 600px;
+    }
+}
+
+@media (max-width: 576px) {
+    .table-container {
+        padding: 0.9rem;
     }
 }

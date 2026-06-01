@@ -1,25 +1,182 @@
 .report-card {
-    border-radius: 15px;
-    padding: 20px;
-    color: white;
-    transition: 0.3s;
+    min-height: 150px;
+    padding: 1.4rem 1.5rem;
+    border-radius: var(--radius-lg);
+    color: #ffffff;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.24s ease, box-shadow 0.24s ease;
 }
 
 .report-card:hover {
-    transform: scale(1.03) translateY(-5px);
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-card);
 }
-
-.card-income { background: #28a745; }
-.card-expense { background: #dc3545; }
-.card-balance { background: #4ca1af; }
 
 .chart-container {
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
+    padding: 1.4rem;
 }
 
-#pieChart{
-    height: 350px;
+.chart-container h5 {
+    margin-bottom: 1rem;
+    color: var(--text);
+}
+
+.report-context {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-bottom: 1.4rem;
+}
+
+.report-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin: 1rem 0 1.25rem;
+}
+
+.report-preset-btn {
+    min-height: 42px;
+}
+
+.report-insight {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.7rem 0.95rem;
+    border: 1px solid rgba(30, 68, 120, 0.12);
+    border-radius: 999px;
+    background: rgba(228, 236, 248, 0.72);
+    color: #24406b;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.report-insight strong {
+    margin-right: 0.35rem;
+    color: var(--text);
+}
+
+.chart-intro {
+    margin-bottom: 1rem;
+}
+
+.chart-intro h5 {
+    margin-bottom: 0.2rem;
+}
+
+.chart-intro p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+#pieChart,
+#barChart {
+    max-height: 350px;
+}
+
+#reportForm {
+    padding: 1rem 1.1rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: rgba(244, 248, 255, 0.78);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(12px);
+}
+
+#reportForm label {
+    color: #536884;
+    font-size: 0.95rem;
+}
+
+#reportForm .report-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+#reportForm .report-form-field .form-label {
+    margin-bottom: 0;
+}
+
+#reportForm .report-form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+#reportForm .report-main-action {
+    width: 100%;
+}
+
+#reportForm .report-secondary-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+#reportForm .btn {
+    min-height: 48px;
+}
+
+#movementsTableBody td:nth-child(2),
+#categoriesTableBody td:last-child {
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    #reportForm {
+        padding: 1rem;
+    }
+
+    #reportForm .report-secondary-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .report-context {
+        flex-direction: column;
+    }
+
+    .report-presets {
+        flex-direction: column;
+    }
+
+    .report-insight {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .report-preset-btn {
+        width: 100%;
+    }
+
+    .chart-container {
+        padding: 1.15rem;
+    }
+
+    #pieChart,
+    #barChart {
+        max-height: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    #reportForm {
+        padding: 0.9rem;
+    }
+
+    #reportForm .report-form-actions {
+        gap: 0.65rem;
+    }
+
+    .chart-container {
+        padding: 1rem;
+    }
+
+    .chart-intro p {
+        font-size: 0.88rem;
+    }
 }
 

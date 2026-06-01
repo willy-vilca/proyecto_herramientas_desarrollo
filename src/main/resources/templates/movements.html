@@ -67,7 +67,8 @@
                     Clientes
                 </a>
 
-                <a th:href="@{/movements}">
+                <a th:href="@{/movements}"
+                   class="active">
                     Movimientos
                 </a>
 
@@ -147,7 +148,8 @@
 
                         <h3>
                             S/.
-                            <span th:text="${ingresos}"></span>
+                            <span id="visibleIncome"
+                                  th:text="${#numbers.formatDecimal(ingresos,1,2)}"></span>
                         </h3>
 
                     </div>
@@ -162,7 +164,8 @@
 
                         <h3>
                             S/.
-                            <span th:text="${gastos}"></span>
+                            <span id="visibleExpense"
+                                  th:text="${#numbers.formatDecimal(gastos,1,2)}"></span>
                         </h3>
 
                     </div>
@@ -177,7 +180,8 @@
 
                         <h3>
                             S/.
-                            <span th:text="${balance}"></span>
+                            <span id="visibleBalance"
+                                  th:text="${#numbers.formatDecimal(balance,1,2)}"></span>
                         </h3>
 
                     </div>
@@ -348,26 +352,127 @@
 
                     </div>
 
+                    <div class="col-md-4">
+
+                        <label class="fw-bold">
+
+                            Buscar:
+
+                        </label>
+
+                        <input id="movementSearch"
+                               class="form-control border border-dark-subtle"
+                               type="search"
+                               placeholder="Descripcion, categoria, fecha o monto">
+
+                    </div>
+
+                    <div class="col-md-3 d-flex align-items-end">
+
+                        <button id="resetMovementFilters"
+                                class="btn btn-secondary w-100"
+                                type="button">
+
+                            Limpiar filtros
+
+                        </button>
+
+                    </div>
+
                 </div>
 
             </div>
 
             <!-- TABLA -->
 
-            <div class="table-responsive-mobile">
+            <div class="table-container shadow-sm mb-3">
 
-                <table class="table table-hover align-middle">
+                <div class="table-toolbar">
+
+                    <div class="table-toolbar-title">
+
+                        <h5>
+                            Historial de Movimientos
+                        </h5>
+
+                        <p>
+                            Revisa el detalle de ingresos y gastos del cliente seleccionado en una sola vista.
+                        </p>
+
+                    </div>
+
+                    <div class="table-toolbar-meta">
+
+                        <span class="table-pill">
+                            <strong id="movementsVisibleCount"
+                                    th:text="${#lists.size(movements)}">
+                            </strong>
+                            visibles
+                        </span>
+
+                        <span class="table-pill">
+                            Historial del cliente seleccionado
+                        </span>
+
+                        <button id="exportMovementsCsv"
+                                class="btn btn-secondary"
+                                type="button">
+                            Descargar CSV
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="table-responsive-mobile">
+
+                    <table class="table table-hover align-middle">
 
                     <thead>
 
                     <tr>
 
-                        <th>Tipo</th>
-                        <th>Monto</th>
-                        <th>Fecha</th>
-                        <th>Descripción</th>
-                        <th>Categoría</th>
-                        <th>Acciones</th>
+                        <th>
+                            <button type="button"
+                                    class="table-sort"
+                                    data-table="movements"
+                                    data-sort-key="type">
+                                Tipo
+                            </button>
+                        </th>
+                        <th class="amount-column">
+                            <button type="button"
+                                    class="table-sort"
+                                    data-table="movements"
+                                    data-sort-key="amount">
+                                Monto
+                            </button>
+                        </th>
+                        <th class="date-column">
+                            <button type="button"
+                                    class="table-sort"
+                                    data-table="movements"
+                                    data-sort-key="date">
+                                Fecha
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button"
+                                    class="table-sort"
+                                    data-table="movements"
+                                    data-sort-key="description">
+                                Descripcion
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button"
+                                    class="table-sort"
+                                    data-table="movements"
+                                    data-sort-key="categoryName">
+                                Categoria
+                            </button>
+                        </th>
+                        <th class="actions-column">Acciones</th>
 
                     </tr>
 
@@ -378,7 +483,11 @@
                     <tr th:each="m : ${movements}"
                         class="movement-row"
                         th:attr="data-type=${m.type},
-                                 data-category=${m.categoryId}">
+                                 data-category=${m.categoryId},
+                                 data-category-name=${m.categoryName},
+                                 data-amount=${m.amount},
+                                 data-date=${m.transactionDate},
+                                 data-description=${m.description}">
                         <td>
 
                             <span class="badge"
@@ -388,19 +497,29 @@
 
                         </td>
 
-                        <td th:text="${m.amount}">
+                        <td class="amount-cell"
+                            th:text="'S/. ' + ${#numbers.formatDecimal(m.amount,1,2)}">
                         </td>
 
-                        <td th:text="${m.transactionDate}">
+                        <td class="date-cell"
+                            th:text="${#temporals.format(m.transactionDate, 'dd/MM/yyyy')}">
                         </td>
 
-                        <td th:text="${m.description}">
-                        </td>
-
-                        <td th:text="${m.categoryName}">
+                        <td class="cell-primary"
+                            th:text="${m.description}">
                         </td>
 
                         <td>
+
+                            <span class="table-chip"
+                                  th:text="${m.categoryName}">
+                            </span>
+
+                        </td>
+
+                        <td class="actions-cell">
+
+                            <div class="table-actions">
 
                             <button class="btn btn-warning btn-sm"
                                     data-bs-toggle="modal"
@@ -439,13 +558,38 @@
 
                             </button>
 
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(movements)}"
+                        class="empty-row">
+
+                        <td colspan="6">
+
+                            <div class="empty-state">
+
+                                <h6>
+                                    No hay movimientos para este cliente
+                                </h6>
+
+                                <p>
+                                    Registra un ingreso o gasto para empezar a construir el historial financiero.
+                                </p>
+
+                            </div>
+
                         </td>
 
                     </tr>
 
                     </tbody>
 
-                </table>
+                    </table>
+
+                </div>
 
             </div>
 
@@ -804,6 +948,65 @@
 
                         <div class="modal-body">
 
+                            <div class="table-toolbar category-management-toolbar">
+
+                                <div class="table-toolbar-title">
+
+                                    <h5>
+                                        Categorías registradas
+                                    </h5>
+
+                                    <p>
+                                        Filtra y ordena la lista para ubicar más rápido la categoría que quieres editar.
+                                    </p>
+
+                                </div>
+
+                                <div class="table-toolbar-meta">
+
+                                    <span class="table-pill">
+                                        <strong id="categoriesVisibleCount"
+                                                th:text="${#lists.size(categories)}">
+                                        </strong>
+                                        visibles
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="table-toolbar-tools category-management-tools">
+
+                                <input id="categorySearch"
+                                       class="form-control"
+                                       type="search"
+                                       placeholder="Buscar por nombre o descripcion">
+
+                                <select id="categoryTypeFilter"
+                                        class="form-control">
+
+                                    <option value="ALL">
+                                        Todos los tipos
+                                    </option>
+
+                                    <option value="INGRESO">
+                                        Ingresos
+                                    </option>
+
+                                    <option value="GASTO">
+                                        Gastos
+                                    </option>
+
+                                </select>
+
+                                <button id="resetCategoryFilters"
+                                        class="btn btn-secondary"
+                                        type="button">
+                                    Limpiar
+                                </button>
+
+                            </div>
+
                             <div class="table-responsive">
 
                                 <table class="table table-hover">
@@ -812,18 +1015,43 @@
 
                                     <tr>
 
-                                        <th>Nombre</th>
-                                        <th>Tipo</th>
-                                        <th>Descripción</th>
+                                        <th>
+                                            <button type="button"
+                                                    class="table-sort"
+                                                    data-table="categories"
+                                                    data-sort-key="name">
+                                                Nombre
+                                            </button>
+                                        </th>
+                                        <th>
+                                            <button type="button"
+                                                    class="table-sort"
+                                                    data-table="categories"
+                                                    data-sort-key="type">
+                                                Tipo
+                                            </button>
+                                        </th>
+                                        <th>
+                                            <button type="button"
+                                                    class="table-sort"
+                                                    data-table="categories"
+                                                    data-sort-key="description">
+                                                Descripción
+                                            </button>
+                                        </th>
                                         <th>Acciones</th>
 
                                     </tr>
 
                                     </thead>
 
-                                    <tbody>
+                                    <tbody id="categoriesTableBody">
 
-                                    <tr th:each="cat : ${categories}">
+                                    <tr th:each="cat : ${categories}"
+                                        class="category-row"
+                                        th:attr="data-name=${cat.name},
+                                                 data-type=${cat.type},
+                                                 data-description=${cat.description}">
 
                                         <td th:text="${cat.name}">
                                         </td>
@@ -857,6 +1085,48 @@
                                                 <i class="bi bi-trash3"></i>
 
                                             </button>
+
+                                        </td>
+
+                                    </tr>
+
+                                    <tr th:if="${#lists.isEmpty(categories)}"
+                                        class="empty-row">
+
+                                        <td colspan="4">
+
+                                            <div class="empty-state">
+
+                                                <h6>
+                                                    No hay categorías registradas
+                                                </h6>
+
+                                                <p>
+                                                    Crea una categoría para organizar mejor tus ingresos y gastos.
+                                                </p>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+                                    <tr id="categoriesEmptyRow"
+                                        class="empty-row d-none">
+
+                                        <td colspan="4">
+
+                                            <div class="empty-state">
+
+                                                <h6>
+                                                    No hay resultados para ese filtro
+                                                </h6>
+
+                                                <p>
+                                                    Ajusta la búsqueda o cambia el tipo para volver a ver categorías disponibles.
+                                                </p>
+
+                                            </div>
 
                                         </td>
 
@@ -1066,64 +1336,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script th:src="@{/js/movements.js}"></script>
-
-<script>
-
-    document.addEventListener("DOMContentLoaded", function () {
-
-        const filterType =
-            document.getElementById("filterType");
-
-        const filterCategory =
-            document.getElementById("filterCategory");
-
-        function applyFilters() {
-
-            const typeValue =
-                filterType.value;
-
-            const categoryValue =
-                filterCategory.value;
-
-            document
-                .querySelectorAll(".movement-row")
-                .forEach(row => {
-
-                    const rowType =
-                        row.dataset.type;
-
-                    const rowCategory =
-                        row.dataset.category;
-
-                    const matchType =
-                        typeValue === "ALL"
-                        || rowType === typeValue;
-
-                    const matchCategory =
-                        categoryValue === "ALL"
-                        || rowCategory === categoryValue;
-
-                    row.style.display =
-                        (matchType && matchCategory)
-                            ? ""
-                            : "none";
-
-                });
-        }
-
-        filterType.addEventListener(
-            "change",
-            applyFilters
-        );
-
-        filterCategory.addEventListener(
-            "change",
-            applyFilters
-        );
-
-    });
-
-</script>
 
 </body>
 
