@@ -119,6 +119,8 @@ public class ClientController {
 
         if("update".equals(action)) {
 
+            client.setStatus(true);
+
             clientService.update(client);
 
         } else {

@@ -808,11 +808,27 @@
             }
 
             function addMovementTable(data) {
+                const movementHeaders = [
+                    [
+                        "Tipo",
+                        "Monto",
+                        "Fecha",
+                        "Descripcion"
+                    ]
+                ];
+                const notMovements = [
+                    [
+                        "Sin movimientos",
+                        "-",
+                        "-",
+                        "-"
+                    ]
+                ];
                 addSectionTitle('Resumen de movimientos', 172);
                 doc.autoTable({
                     startY: 184,
-                    head: [['Tipo', 'Monto', 'Fecha', 'Descripcion']],
-                    body: data.movements.length ? data.movements : [['Sin movimientos', '-', '-', '-']],
+                    head: movementHeaders,
+                    body: data.movements.length ? data.movements : notMovements,
                     margin: { left: margin, right: margin },
                     styles: { fontSize: 9, cellPadding: 3, textColor: darkColor },
                     headStyles: { fillColor: accentColor, textColor: [255, 255, 255], fontStyle: 'bold' },
@@ -836,10 +852,22 @@
             }
 
             function renderCategoryTable(startY, data) {
+                const headCategories = [
+                    [
+                        "Categoria",
+                        "Total"
+                    ]
+                ];
+                const notCategories = [
+                    [
+                        "Sin categorias",
+                        "-"
+                    ]
+                ];
                 doc.autoTable({
                     startY: startY,
-                    head: [['Categoria', 'Total']],
-                    body: data.categories.length ? data.categories : [['Sin categorias', '-']],
+                    head: headCategories,
+                    body: data.categories.length ? data.categories : notCategories,
                     margin: { left: margin, right: margin },
                     styles: { fontSize: 9, cellPadding: 3, textColor: darkColor },
                     headStyles: { fillColor: [76, 161, 175], textColor: [255, 255, 255], fontStyle: 'bold' },
