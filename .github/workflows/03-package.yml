@@ -32,8 +32,9 @@ jobs:
       - name: Build Package
         run: ./mvnw clean package -DskipTests
 
-      - name: Upload Artifact
+      - name: Upload Deploy Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sistema-contador-jar
+          name: deploy-package
           path: target/*.jar
+          retention-days: 7
