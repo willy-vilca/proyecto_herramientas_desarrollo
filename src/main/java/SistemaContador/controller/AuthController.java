@@ -13,6 +13,11 @@ public class AuthController {
 
     private final UserService userService;
 
+    @GetMapping("/")
+    public String inicio() {
+        return "redirect:/login";
+    }
+
     @GetMapping("/login")
     public String loginPage(HttpSession session) {
 
