@@ -2,7 +2,7 @@ name: 04 - Deploy to Azure
 
 on:
   workflow_run:
-    workflows: ["03 - Package Application"]
+    workflows: ["03 - Package Spring Boot"]
     types:
       - completed
 
