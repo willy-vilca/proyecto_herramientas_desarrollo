@@ -7,7 +7,6 @@ on:
       - completed
 
 jobs:
-
   deploy:
 
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -16,21 +15,20 @@ jobs:
 
     steps:
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure Java 17
-        uses: actions/setup-java@v4
+      - name: Download Artifact from Package Workflow
+        uses: dawidd6/action-download-artifact@v6
         with:
-          distribution: temurin
-          java-version: '17'
+          workflow: 03-package.yml
+          branch: main
+          name: deploy-package
+          path: artifact
 
-      - name: Build project
-        run: mvn clean package -DskipTests
+      - name: Show downloaded files
+        run: ls -R artifact
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: sistema-contador
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: target/*.jar
+          package: artifact/*.jar
