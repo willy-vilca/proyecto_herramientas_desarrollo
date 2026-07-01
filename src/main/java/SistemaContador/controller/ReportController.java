@@ -3,6 +3,7 @@ package SistemaContador.controller;
 import SistemaContador.model.User;
 import SistemaContador.service.ClientService;
 import SistemaContador.service.ReportService;
+import SistemaContador.util.UiFeedbackUtil;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -46,6 +47,11 @@ public class ReportController {
 
             return "redirect:/login";
         }
+
+        UiFeedbackUtil.moveFeedbackFromSession(
+                session,
+                model
+        );
 
         var clients =
                 clientService.getClientsByUser(

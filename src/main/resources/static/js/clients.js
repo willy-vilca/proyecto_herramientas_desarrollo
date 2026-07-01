@@ -54,23 +54,6 @@ function loadClientData(button) {
     ).value = button.dataset.company;
 }
 
-// =====================================
-// MENÚ HAMBURGUESA
-// =====================================
-
-function toggleSidebar() {
-
-    document
-        .querySelector('.sidebar')
-        .classList
-        .toggle('active');
-
-    document
-        .querySelector('.sidebar-overlay')
-        .classList
-        .toggle('active');
-}
-
 document.addEventListener(
     'DOMContentLoaded',
     function () {
@@ -101,6 +84,26 @@ document.addEventListener(
         const visibleCount =
             document.getElementById(
                 'clientsVisibleCount'
+            );
+
+        const totalCount =
+            document.getElementById(
+                'clientsTotalCount'
+            );
+
+        const withCompanyCount =
+            document.getElementById(
+                'clientsWithCompanyCount'
+            );
+
+        const withEmailCount =
+            document.getElementById(
+                'clientsWithEmailCount'
+            );
+
+        const emptySearchRow =
+            document.getElementById(
+                'clientsSearchEmptyRow'
             );
 
         const sortButtons =
@@ -154,7 +157,7 @@ document.addEventListener(
 
         function updateVisibleCount() {
             if (!visibleCount) {
-                return;
+                return 0;
             }
 
             const count = getRows()
@@ -164,6 +167,33 @@ document.addEventListener(
                 .length;
 
             visibleCount.textContent = count;
+            return count;
+        }
+
+        function updateOverviewStats() {
+            const rows = getRows();
+
+            if (totalCount) {
+                totalCount.textContent = rows.length;
+            }
+
+            if (withCompanyCount) {
+                withCompanyCount.textContent = rows.filter(function (row) {
+                    return Boolean(
+                        (row.dataset.company || '')
+                            .trim()
+                    );
+                }).length;
+            }
+
+            if (withEmailCount) {
+                withEmailCount.textContent = rows.filter(function (row) {
+                    return Boolean(
+                        (row.dataset.email || '')
+                            .trim()
+                    );
+                }).length;
+            }
         }
 
         function matchesSearch(row, query) {
@@ -195,7 +225,15 @@ document.addEventListener(
                         : 'none';
             });
 
-            updateVisibleCount();
+            const visibleRows = updateVisibleCount();
+
+            if (emptySearchRow) {
+                emptySearchRow.classList.toggle(
+                    'd-none',
+                    visibleRows !== 0 || getRows().length === 0
+                );
+            }
+
             writeState();
         }
 
@@ -320,6 +358,8 @@ document.addEventListener(
         if (persistedState.sortDirection) {
             currentSortDirection = persistedState.sortDirection;
         }
+
+        updateOverviewStats();
 
         if (searchInput) {
             searchInput.addEventListener(

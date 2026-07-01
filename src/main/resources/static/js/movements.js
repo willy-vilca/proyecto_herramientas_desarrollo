@@ -33,12 +33,6 @@ function loadMovementData(id, type, amount, date, description, categoryId) {
     document.getElementById("editCategory").value = categoryId;
 }
 
-//funcionalidad del menú hamburguesa
-function toggleSidebar() {
-    document.querySelector('.sidebar').classList.toggle('active');
-    document.querySelector('.sidebar-overlay').classList.toggle('active');
-}
-
 document.addEventListener(
     'DOMContentLoaded',
     function () {
@@ -89,6 +83,26 @@ document.addEventListener(
         const visibleBalance =
             document.getElementById(
                 'visibleBalance'
+            );
+
+        const selectedClientLabel =
+            document.getElementById(
+                'selectedClientLabel'
+            );
+
+        const movementFilterLabel =
+            document.getElementById(
+                'movementFilterLabel'
+            );
+
+        const emptyFilterRow =
+            document.getElementById(
+                'movementsFilterEmptyRow'
+            );
+
+        const clientSelect =
+            document.querySelector(
+                'select[name="clientId"]'
             );
 
         const tableBody =
@@ -200,6 +214,62 @@ document.addEventListener(
                     income - expense
                 );
             }
+
+            return visibleRows;
+        }
+
+        function updateClientContext() {
+            if (!clientSelect || !selectedClientLabel) {
+                return;
+            }
+
+            const selectedOption =
+                clientSelect.options[
+                    clientSelect.selectedIndex
+                ];
+
+            selectedClientLabel.textContent =
+                selectedOption
+                    ? selectedOption.textContent.trim()
+                    : 'Sin cliente seleccionado';
+        }
+
+        function updateFilterLabel() {
+            if (!movementFilterLabel) {
+                return;
+            }
+
+            const parts = [];
+
+            if (filterType.value !== 'ALL') {
+                parts.push(
+                    filterType.value === 'INGRESO'
+                        ? 'Ingresos'
+                        : 'Gastos'
+                );
+            }
+
+            if (filterCategory.value !== 'ALL') {
+                const selectedCategory =
+                    filterCategory.options[
+                        filterCategory.selectedIndex
+                    ];
+
+                if (selectedCategory) {
+                    parts.push(
+                        selectedCategory.textContent.trim()
+                    );
+                }
+            }
+
+            if (searchInput && searchInput.value.trim()) {
+                parts.push('Busqueda activa');
+            }
+
+            movementFilterLabel.textContent =
+                parts.length
+                    ? parts.join(' / ')
+                    : 'Todos';
         }
 
         function matchesSearch(row, query) {
@@ -243,7 +313,18 @@ document.addEventListener(
                         : 'none';
             });
 
-            updateVisibleSummary();
+            const visibleRows =
+                updateVisibleSummary();
+
+            updateFilterLabel();
+
+            if (emptyFilterRow) {
+                emptyFilterRow.classList.toggle(
+                    'd-none',
+                    visibleRows !== 0 || getRows().length === 0
+                );
+            }
+
             writeState();
         }
 
@@ -387,6 +468,9 @@ document.addEventListener(
         if (persistedState.sortDirection) {
             currentSortDirection = persistedState.sortDirection;
         }
+
+        updateClientContext();
+        updateFilterLabel();
 
         filterType.addEventListener(
             'change',
@@ -661,5 +745,3 @@ document.addEventListener(
         );
     }
 );
-
-

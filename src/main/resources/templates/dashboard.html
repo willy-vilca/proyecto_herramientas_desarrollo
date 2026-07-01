@@ -12,30 +12,16 @@
           rel="stylesheet">
 
     <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet"
           th:href="@{/css/dashboard.css}">
 
 </head>
 
 <body>
 
-<div class="mobile-header">
-
-    <button class="hamburger-btn"
-            onclick="toggleSidebar()">
-
-        &#9776;
-
-    </button>
-
-    <span class="mobile-title">
-        Dashboard
-    </span>
-
-</div>
-
-<div class="sidebar-overlay"
-     onclick="toggleSidebar()">
-</div>
+<div th:replace="~{fragments/layout :: mobile-header('Dashboard')}"></div>
 
 <div class="container-fluid">
 
@@ -43,69 +29,93 @@
 
         <!-- SIDEBAR -->
 
-        <div class="col-md-2 sidebar d-flex flex-column justify-content-between">
-
-            <div>
-
-                <h3>Contador</h3>
-
-                <hr>
-
-                <a th:href="@{/dashboard}"
-                   class="active">
-                    Dashboard
-                </a>
-
-                <a th:href="@{/clients}">
-                    Clientes
-                </a>
-
-                <a th:href="@{/movements}">
-                    Movimientos
-                </a>
-
-                <a th:href="@{/reports}">
-                    Reportes
-                </a>
-
-            </div>
-
-            <div class="logout-container">
-
-                <a th:href="@{/logout}"
-                   class="logout-btn">
-
-                    Cerrar sesión
-
-                </a>
-
-            </div>
-
-        </div>
+        <aside th:replace="~{fragments/layout :: sidebar('dashboard')}"></aside>
 
         <!-- CONTENIDO -->
 
         <div class="col-md-10 main-content ps-4">
 
-            <nav class="navbar page-header py-4 px-2 mb-4">
+            <nav th:replace="~{fragments/layout :: page-header(
+                    ${'Bienvenido, ' + primerNombre},
+                    'Revisa tus indicadores principales y la actividad financiera más reciente en un solo vistazo.'
+                )}">
+            </nav>
 
-                <div>
+            <div class="row g-4 mb-4">
 
-                    <h3>
+                <div class="col-lg-8">
 
-                        Bienvenido al sistema,
-                        <span th:text="${primerNombre}">
-                        </span>
+                    <div class="card dashboard-hero-card p-4">
 
-                    </h3>
+                        <div class="dashboard-hero-copy">
 
-                    <p>
-                        Revisa tus indicadores principales y la actividad financiera más reciente en un solo vistazo.
-                    </p>
+                            <span class="section-kicker">
+                                Panorama general
+                            </span>
+
+                            <h4>
+                                Tu operación financiera se resume aquí para decidir más rápido.
+                            </h4>
+
+                            <p>
+                                Usa los accesos directos para registrar movimientos, revisar clientes o generar reportes sin perder contexto.
+                            </p>
+
+                        </div>
+
+                        <div class="hero-actions">
+                            <a th:href="@{/movements}"
+                               class="btn btn-primary">
+                                Registrar movimiento
+                            </a>
+
+                            <a th:href="@{/clients}"
+                               class="btn btn-secondary">
+                                Ver clientes
+                            </a>
+
+                            <a th:href="@{/reports}"
+                               class="btn btn-secondary">
+                                Abrir reportes
+                            </a>
+                        </div>
+
+                    </div>
 
                 </div>
 
-            </nav>
+                <div class="col-lg-4">
+
+                    <div class="card dashboard-insight-card p-4">
+
+                        <span class="section-kicker">
+                            Estado actual
+                        </span>
+
+                        <div class="insight-list">
+
+                            <div class="insight-item">
+                                <strong th:text="${#lists.size(ultimosMovimientos)}"></strong>
+                                <span>movimientos recientes visibles</span>
+                            </div>
+
+                            <div class="insight-item">
+                                <strong th:text="${balance >= 0 ? 'Saldo favorable' : 'Saldo por revisar'}"></strong>
+                                <span th:text="${balance >= 0 ? 'Tus ingresos sostienen el resultado actual.' : 'Tus gastos ya superan el ingreso acumulado.'}"></span>
+                            </div>
+
+                            <div class="insight-item">
+                                <strong>Seguimiento rápido</strong>
+                                <span>Las últimas operaciones ya se muestran en tabla para revisión inmediata.</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
             <!-- CARDS -->
 
@@ -113,63 +123,39 @@
 
                 <div class="col-md-4">
 
-                    <div class="card card-income p-3 shadow mb-3 mb-md-0">
-
-                        <h5>Ingresos Totales</h5>
-
-                        <h3>
-
-                            S/.
-                            <span th:text="${#numbers.formatDecimal(ingresos,1,2)}"></span>
-
-                        </h3>
-
-                        <div class="metric-note">
-                            Flujo acumulado positivo registrado.
-                        </div>
-
+                    <div th:replace="~{fragments/ui :: metric-card(
+                            'Ingresos Totales',
+                            ${#numbers.formatDecimal(ingresos,1,2)},
+                            'Flujo acumulado positivo registrado.',
+                            'card-income mb-3 mb-md-0',
+                            null
+                        )}">
                     </div>
 
                 </div>
 
                 <div class="col-md-4">
 
-                    <div class="card card-expense p-3 shadow mb-3 mb-md-0">
-
-                        <h5>Gastos Totales</h5>
-
-                        <h3>
-
-                            S/.
-                            <span th:text="${#numbers.formatDecimal(gastos,1,2)}"></span>
-
-                        </h3>
-
-                        <div class="metric-note">
-                            Egresos consolidados del periodo visible.
-                        </div>
-
+                    <div th:replace="~{fragments/ui :: metric-card(
+                            'Gastos Totales',
+                            ${#numbers.formatDecimal(gastos,1,2)},
+                            'Egresos consolidados del periodo visible.',
+                            'card-expense mb-3 mb-md-0',
+                            null
+                        )}">
                     </div>
 
                 </div>
 
                 <div class="col-md-4">
 
-                    <div class="card card-balance p-3 shadow">
-
-                        <h5>Balance Total</h5>
-
-                        <h3>
-
-                            S/.
-                            <span th:text="${#numbers.formatDecimal(balance,1,2)}"></span>
-
-                        </h3>
-
-                        <div class="metric-note">
-                            Resultado neto actual de tu operación.
-                        </div>
-
+                    <div th:replace="~{fragments/ui :: metric-card(
+                            'Balance Total',
+                            ${#numbers.formatDecimal(balance,1,2)},
+                            'Resultado neto actual de tu operación.',
+                            'card-balance',
+                            null
+                        )}">
                     </div>
 
                 </div>
@@ -212,7 +198,7 @@
 
                 <div class="table-responsive-mobile">
 
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle responsive-card-table">
 
                         <thead>
 
@@ -232,7 +218,7 @@
 
                         <tr th:each="m : ${ultimosMovimientos}">
 
-                            <td>
+                            <td data-label="Tipo">
 
                                 <span
                                         th:class="${m.type == 'INGRESO'} ?
@@ -245,7 +231,7 @@
 
                             </td>
 
-                            <td>
+                            <td data-label="Cliente">
 
                                 <strong
                                         th:text="${m.clientName}">
@@ -254,12 +240,15 @@
                             </td>
 
                             <td class="amount-cell"
+                                data-label="Monto"
                                 th:text="'S/. ' + ${#numbers.formatDecimal(m.amount,1,2)}"></td>
 
                             <td class="date-cell"
+                                data-label="Fecha"
                                 th:text="${#temporals.format(m.transactionDate, 'dd/MM/yyyy')}"></td>
 
-                            <td th:text="${m.description}"></td>
+                            <td data-label="Descripción"
+                                th:text="${m.description}"></td>
 
                         </tr>
 
@@ -298,22 +287,11 @@
 
 </div>
 
-<script>
+<div th:replace="~{fragments/layout :: feedback}"></div>
 
-    function toggleSidebar() {
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        document
-            .querySelector('.sidebar')
-            .classList
-            .toggle('active');
-
-        document
-            .querySelector('.sidebar-overlay')
-            .classList
-            .toggle('active');
-    }
-
-</script>
+<script th:src="@{/js/app.js}"></script>
 
 </body>
 </html>

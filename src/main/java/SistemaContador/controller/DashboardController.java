@@ -4,6 +4,7 @@ import SistemaContador.dto.DashboardSummary;
 import SistemaContador.model.Transaction;
 import SistemaContador.model.User;
 import SistemaContador.service.DashboardService;
+import SistemaContador.util.UiFeedbackUtil;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -32,6 +33,11 @@ public class DashboardController {
         if(user == null){
             return "redirect:/login";
         }
+
+        UiFeedbackUtil.moveFeedbackFromSession(
+                session,
+                model
+        );
 
         DashboardSummary summary =
                 dashboardService

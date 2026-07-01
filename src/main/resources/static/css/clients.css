@@ -15,6 +15,10 @@
     color: var(--text);
 }
 
+.mini-overview-card {
+    min-height: 100%;
+}
+
 @media (max-width: 768px) {
     .table-container {
         padding: 1rem;

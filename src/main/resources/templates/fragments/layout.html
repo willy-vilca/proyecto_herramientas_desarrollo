@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="mobile-header(title)">
+    <div class="mobile-header">
+        <button class="hamburger-btn"
+                type="button"
+                onclick="toggleSidebar()"
+                aria-label="Abrir navegación">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <span class="mobile-title"
+              th:text="${title}">
+        </span>
+
+        <button class="theme-toggle-btn theme-toggle-btn-mobile"
+                type="button"
+                data-theme-toggle
+                aria-label="Cambiar tema">
+            <i class="bi bi-moon-stars-fill"></i>
+        </button>
+    </div>
+    <div class="sidebar-overlay"
+         onclick="toggleSidebar()">
+    </div>
+</div>
+
+<aside th:fragment="sidebar(activePage)"
+       class="col-md-2 sidebar d-flex flex-column justify-content-between">
+
+    <div>
+
+        <div class="brand-panel">
+            <div class="brand-mark">
+                <i class="bi bi-calculator-fill"></i>
+            </div>
+
+            <div>
+                <h3>Contador</h3>
+                <p>Control financiero inteligente</p>
+            </div>
+        </div>
+
+        <div class="sidebar-toolbar">
+            <button class="theme-toggle-btn"
+                    type="button"
+                    data-theme-toggle
+                    aria-label="Cambiar tema">
+                <i class="bi bi-moon-stars-fill"></i>
+                <span data-theme-toggle-label>
+                    Tema oscuro
+                </span>
+            </button>
+        </div>
+
+        <hr>
+
+        <a th:href="@{/dashboard}"
+           th:classappend="${activePage == 'dashboard'} ? ' active' : ''">
+            <i class="bi bi-grid-1x2-fill nav-icon"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a th:href="@{/clients}"
+           th:classappend="${activePage == 'clients'} ? ' active' : ''">
+            <i class="bi bi-people-fill nav-icon"></i>
+            <span>Clientes</span>
+        </a>
+
+        <a th:href="@{/movements}"
+           th:classappend="${activePage == 'movements'} ? ' active' : ''">
+            <i class="bi bi-arrow-left-right nav-icon"></i>
+            <span>Movimientos</span>
+        </a>
+
+        <a th:href="@{/reports}"
+           th:classappend="${activePage == 'reports'} ? ' active' : ''">
+            <i class="bi bi-bar-chart-fill nav-icon"></i>
+            <span>Reportes</span>
+        </a>
+
+    </div>
+
+    <div class="logout-container">
+        <a th:href="@{/logout}"
+           class="logout-btn">
+            <i class="bi bi-box-arrow-right nav-icon"></i>
+            <span>Cerrar sesión</span>
+        </a>
+    </div>
+
+</aside>
+
+<nav th:fragment="page-header(title, subtitle)"
+     class="navbar page-header py-4 px-2 mb-4">
+    <div>
+        <h3 th:text="${title}"></h3>
+        <p th:text="${subtitle}"></p>
+    </div>
+</nav>
+
+<div th:fragment="feedback"
+     th:with="toastMessage=${feedbackMessage != null ? feedbackMessage : error},
+              toastType=${feedbackType != null ? feedbackType : (error != null ? 'danger' : 'success')}"
+     class="app-feedback-shell">
+
+    <div id="appLoadingOverlay"
+         class="loading-overlay"
+         aria-hidden="true">
+        <div class="loading-overlay-card">
+            <div class="spinner-border text-light"
+                 role="status">
+                <span class="visually-hidden">
+                    Cargando
+                </span>
+            </div>
+            <strong>Procesando cambios...</strong>
+            <p>Espera un momento mientras actualizamos la información.</p>
+        </div>
+    </div>
+
+    <div th:if="${toastMessage != null}"
+         class="toast-container position-fixed bottom-0 end-0 p-3">
+
+        <div class="toast align-items-center show app-toast"
+             th:classappend="${toastType == 'danger'} ? ' text-bg-danger' :
+                             (${toastType == 'warning'} ? ' text-bg-warning' :
+                             (${toastType == 'info'} ? ' text-bg-primary' : ' text-bg-success'))"
+             data-bs-delay="3600">
+
+            <div class="d-flex">
+                <div class="toast-body"
+                     th:text="${toastMessage}">
+                </div>
+
+                <button type="button"
+                        class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
