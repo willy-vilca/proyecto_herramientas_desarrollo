@@ -1,0 +1,34 @@
+name: 04 - Deploy to Azure
+
+on:
+  workflow_run:
+    workflows: ["03 - Package Spring Boot"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Download Artifact from Package Workflow
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: 03-package.yml
+          branch: main
+          name: deploy-package
+          path: artifact
+
+      - name: Show downloaded files
+        run: ls -R artifact
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: sistema-contador
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: artifact/*.jar
