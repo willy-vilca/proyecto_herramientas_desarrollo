@@ -1,0 +1,40 @@
+name: 03 - Package Spring Boot
+
+on:
+
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+
+jobs:
+
+  package:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Give execute permission to Maven Wrapper
+        run: chmod +x mvnw
+
+      - name: Build Package
+        run: ./mvnw clean package -DskipTests
+
+      - name: Upload Deploy Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-package
+          path: target/*.jar
+          retention-days: 7
