@@ -2,6 +2,7 @@ package SistemaContador.controller;
 
 import SistemaContador.model.*;
 import SistemaContador.service.CategoryService;
+import SistemaContador.util.UiFeedbackUtil;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -34,9 +35,21 @@ public class CategoryController {
 
             categoryService.update(category);
 
+            UiFeedbackUtil.queueFeedback(
+                    session,
+                    "success",
+                    "Categoría actualizada correctamente"
+            );
+
         } else {
 
             categoryService.save(category);
+
+            UiFeedbackUtil.queueFeedback(
+                    session,
+                    "success",
+                    "Categoría registrada correctamente"
+            );
         }
 
         return "redirect:/movements";
@@ -44,10 +57,17 @@ public class CategoryController {
 
     @GetMapping("/delete")
     public String deleteCategory(
-            @RequestParam Integer id
+            @RequestParam Integer id,
+            HttpSession session
     ) {
 
         categoryService.delete(id);
+
+        UiFeedbackUtil.queueFeedback(
+                session,
+                "success",
+                "Categoría eliminada correctamente"
+        );
 
         return "redirect:/movements";
     }

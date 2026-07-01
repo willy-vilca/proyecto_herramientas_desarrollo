@@ -2,6 +2,7 @@ package SistemaContador.controller;
 
 import SistemaContador.model.*;
 import SistemaContador.service.*;
+import SistemaContador.util.UiFeedbackUtil;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -36,6 +37,11 @@ public class TransactionController {
 
             return "redirect:/login";
         }
+
+        UiFeedbackUtil.moveFeedbackFromSession(
+                session,
+                model
+        );
 
         var clients =
                 clientService.getClientsByUser(
@@ -99,16 +105,29 @@ public class TransactionController {
     public String saveMovement(
             @RequestParam(required = false)
             String action,
-            Transaction transaction
+            Transaction transaction,
+            HttpSession session
     ) {
 
         if ("update".equals(action)) {
 
             transactionService.update(transaction);
 
+            UiFeedbackUtil.queueFeedback(
+                    session,
+                    "success",
+                    "Movimiento actualizado correctamente"
+            );
+
         } else {
 
             transactionService.save(transaction);
+
+            UiFeedbackUtil.queueFeedback(
+                    session,
+                    "success",
+                    "Movimiento registrado correctamente"
+            );
         }
 
         return "redirect:/movements?clientId="
@@ -118,10 +137,17 @@ public class TransactionController {
     @GetMapping("/delete")
     public String deleteMovement(
             @RequestParam Integer id,
-            @RequestParam Integer clientId
+            @RequestParam Integer clientId,
+            HttpSession session
     ) {
 
         transactionService.delete(id);
+
+        UiFeedbackUtil.queueFeedback(
+                session,
+                "success",
+                "Movimiento eliminado correctamente"
+        );
 
         return "redirect:/movements?clientId="
                 + clientId;

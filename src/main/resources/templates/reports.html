@@ -14,6 +14,9 @@
           rel="stylesheet">
 
     <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet"
           th:href="@{/css/dashboard.css}">
 
     <link rel="stylesheet"
@@ -31,26 +34,7 @@
 
 <!-- MOBILE HEADER -->
 
-<div class="mobile-header">
-
-    <button class="hamburger-btn"
-            onclick="toggleSidebar()">
-
-        ☰
-
-    </button>
-
-    <span class="mobile-title">
-
-        Reportes
-
-    </span>
-
-</div>
-
-<div class="sidebar-overlay"
-     onclick="toggleSidebar()">
-</div>
+<div th:replace="~{fragments/layout :: mobile-header('Reportes')}"></div>
 
 <div class="container-fluid">
 
@@ -58,53 +42,16 @@
 
         <!-- SIDEBAR -->
 
-        <div class="col-md-2 sidebar d-flex flex-column justify-content-between">
-
-            <div>
-
-                <h3>Contador</h3>
-
-                <hr>
-
-                <a th:href="@{/dashboard}">
-                    Dashboard
-                </a>
-
-                <a th:href="@{/clients}">
-                    Clientes
-                </a>
-
-                <a th:href="@{/movements}">
-                    Movimientos
-                </a>
-
-                <a th:href="@{/reports}">
-                    Reportes
-                </a>
-
-            </div>
-
-            <div class="logout-container">
-
-                <a th:href="@{/logout}"
-                   class="logout-btn">
-
-                    Cerrar sesión
-
-                </a>
-
-            </div>
-
-        </div>
+        <aside th:replace="~{fragments/layout :: sidebar('reports')}"></aside>
 
         <!-- CONTENIDO -->
 
         <div class="col-md-10 main-content p-4">
 
-            <nav class="navbar page-header pb-4 pt-1 mb-4">
-
-                <h3>Reportes</h3>
-
+            <nav th:replace="~{fragments/layout :: page-header(
+                    'Reportes',
+                    'Analiza el rendimiento financiero por cliente, periodo y categoría con una vista ejecutiva.'
+                )}">
             </nav>
 
             <!-- FILTROS -->
@@ -114,102 +61,179 @@
                   class="row g-2 mb-2"
                   id="reportForm">
 
-                <div class="col-md-2">
+                <div class="col-lg-2 col-md-6">
 
-                    <select name="clientId"
-                            class="form-control border border-dark-subtle">
+                    <div class="report-form-field">
 
-                        <option
-                                th:each="c : ${clients}"
-                                th:value="${c.clientId}"
-                                th:text="${c.fullName}"
-                                th:selected="${c.clientId == selectedClient}">
-                        </option>
+                        <label class="form-label fw-bold">
+                            Cliente
+                        </label>
 
-                    </select>
+                        <select name="clientId"
+                                class="form-control border border-dark-subtle">
 
-                </div>
+                            <option
+                                    th:each="c : ${clients}"
+                                    th:value="${c.clientId}"
+                                    th:text="${c.fullName}"
+                                    th:selected="${c.clientId == selectedClient}">
+                            </option>
 
-                <div class="col-md-3">
-
-                    <div class="row g-3 align-items-center">
-
-                        <div class="col-auto">
-
-                            <label class="col-form-label fw-bold">
-
-                                Fecha Inicial:
-
-                            </label>
-
-                        </div>
-
-                        <div class="col-auto">
-
-                            <input type="date"
-                                   name="startDate"
-                                   th:value="${startDate}"
-                                   class="form-control border border-dark-subtle"
-                                   required>
-
-                        </div>
+                        </select>
 
                     </div>
 
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-lg-3 col-md-6">
 
-                    <div class="row g-3 align-items-center">
+                    <div class="report-form-field">
 
-                        <div class="col-auto">
+                        <label class="form-label fw-bold">
+                            Fecha Inicial
+                        </label>
 
-                            <label class="col-form-label fw-bold">
-
-                                Fecha Final:
-
-                            </label>
-
-                        </div>
-
-                        <div class="col-auto">
-
-                            <input type="date"
-                                   name="endDate"
-                                   th:value="${endDate}"
-                                   class="form-control border border-dark-subtle"
-                                   required>
-
-                        </div>
+                        <input type="date"
+                               name="startDate"
+                               th:value="${startDate}"
+                               class="form-control border border-dark-subtle"
+                               required>
 
                     </div>
 
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-lg-3 col-md-6">
 
-                    <button type="submit"
-                            class="btn btn-primary w-100">
+                    <div class="report-form-field">
 
-                        Generar reporte
+                        <label class="form-label fw-bold">
+                            Fecha Final
+                        </label>
 
-                    </button>
+                        <input type="date"
+                               name="endDate"
+                               th:value="${endDate}"
+                               class="form-control border border-dark-subtle"
+                               required>
+
+                    </div>
 
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-lg-4 col-md-12">
 
-                    <button type="button"
-                            id="btnPdf"
-                            class="btn btn-outline-danger w-100">
+                    <div class="report-form-actions">
 
-                        Descargar PDF
+                        <button type="submit"
+                                class="btn btn-primary report-main-action">
 
-                    </button>
+                            Generar reporte
+
+                        </button>
+
+                        <div class="report-secondary-actions">
+
+                            <button type="button"
+                                    id="btnCsv"
+                                    class="btn btn-secondary">
+
+                                Descargar CSV
+
+                            </button>
+
+                            <button type="button"
+                                    id="btnPdf"
+                                    class="btn btn-outline-danger">
+
+                                Descargar PDF
+
+                            </button>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
             </form>
+
+            <div class="report-presets">
+
+                <button type="button"
+                        class="btn btn-secondary report-preset-btn"
+                        data-range="today">
+                    Hoy
+                </button>
+
+                <button type="button"
+                        class="btn btn-secondary report-preset-btn"
+                        data-range="7days">
+                    7 dias
+                </button>
+
+                <button type="button"
+                        class="btn btn-secondary report-preset-btn"
+                        data-range="30days">
+                    30 dias
+                </button>
+
+                <button type="button"
+                        class="btn btn-secondary report-preset-btn"
+                        data-range="month">
+                    Mes actual
+                </button>
+            </div>
+
+            <div class="report-context">
+
+                <span class="report-insight">
+                    <strong th:text="${#lists.size(movements)}">
+                    </strong>
+                    movimientos en el periodo
+                </span>
+
+                <span class="report-insight">
+                    <strong th:text="${#maps.size(categories)}">
+                    </strong>
+                    categorias con actividad
+                </span>
+
+                <span class="report-insight">
+                    Periodo:
+                    <strong th:text="${#temporals.format(startDate, 'dd/MM/yyyy') + ' - ' + #temporals.format(endDate, 'dd/MM/yyyy')}">
+                    </strong>
+                </span>
+
+            </div>
+
+            <div class="row g-3 report-spotlights">
+
+                <div class="col-md-4">
+                    <div class="mini-overview-card">
+                        <span>Ticket promedio</span>
+                        <strong id="reportAverageValue">S/. 0.00</strong>
+                        <p>Promedio estimado por movimiento dentro del periodo filtrado.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="mini-overview-card">
+                        <span>Categoría principal</span>
+                        <strong id="reportTopCategory">Sin datos</strong>
+                        <p>Rubro con mayor concentración de monto acumulado.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="mini-overview-card">
+                        <span>Ritmo del periodo</span>
+                        <strong id="reportDensityValue">0 mov./día</strong>
+                        <p>Lectura rápida de intensidad operativa según el rango elegido.</p>
+                    </div>
+                </div>
+
+            </div>
 
             <div class="navbar py-2 mb-5"></div>
             <!-- CARDS RESUMEN -->
@@ -218,39 +242,39 @@
 
                 <div class="col-md-4">
 
-                    <div class="report-card card-income shadow mb-3 mb-md-0">
-
-                        <h5>Ingresos</h5>
-
-                        <h3 th:text="'S/. ' + ${#numbers.formatDecimal(ingresos,1,2)}">
-                        </h3>
-
+                    <div th:replace="~{fragments/ui :: metric-card(
+                            'Ingresos',
+                            ${#numbers.formatDecimal(ingresos,1,2)},
+                            'Entradas acumuladas dentro del rango consultado.',
+                            'report-card card-income shadow mb-3 mb-md-0',
+                            'reportIncomeValue'
+                        )}">
                     </div>
 
                 </div>
 
                 <div class="col-md-4">
 
-                    <div class="report-card card-expense shadow mb-3 mb-md-0">
-
-                        <h5>Gastos</h5>
-
-                        <h3 th:text="'S/. ' + ${#numbers.formatDecimal(gastos,1,2)}">
-                        </h3>
-
+                    <div th:replace="~{fragments/ui :: metric-card(
+                            'Gastos',
+                            ${#numbers.formatDecimal(gastos,1,2)},
+                            'Salidas registradas para este cliente.',
+                            'report-card card-expense shadow mb-3 mb-md-0',
+                            'reportExpenseValue'
+                        )}">
                     </div>
 
                 </div>
 
                 <div class="col-md-4">
 
-                    <div class="report-card card-balance shadow">
-
-                        <h5>Balance</h5>
-
-                        <h3 th:text="'S/. ' + ${#numbers.formatDecimal(balance,1,2)}">
-                        </h3>
-
+                    <div th:replace="~{fragments/ui :: metric-card(
+                            'Balance',
+                            ${#numbers.formatDecimal(balance,1,2)},
+                            'Diferencia neta entre ingresos y gastos.',
+                            'report-card card-balance shadow',
+                            'reportBalanceValue'
+                        )}">
                     </div>
 
                 </div>
@@ -267,11 +291,17 @@
 
                 <div class="col-md-3 chart-container mb-4">
 
-                    <h5 class="mb-4">
+                    <div class="chart-intro">
 
-                        Ingresos vs Gastos
+                        <h5>
+                            Ingresos vs Gastos
+                        </h5>
 
-                    </h5>
+                        <p>
+                            Comparación rápida del peso relativo entre entradas y salidas.
+                        </p>
+
+                    </div>
 
                     <canvas id="pieChart"></canvas>
 
@@ -281,23 +311,29 @@
 
                 <div class="col-md-8 chart-container mb-4">
 
-                    <h5 class="mb-3">
+                    <div class="chart-intro">
 
-                        Movimientos
+                        <h5>
+                            Movimientos
+                        </h5>
 
-                    </h5>
+                        <p>
+                            Detalle cronológico de operaciones incluidas en el reporte actual.
+                        </p>
+
+                    </div>
 
                     <div class="table-responsive-mobile">
 
-                        <table class="table table-hover align-middle">
+                        <table class="table table-hover align-middle responsive-card-table">
 
                             <thead>
 
                             <tr>
 
                                 <th>Tipo</th>
-                                <th>Monto</th>
-                                <th>Fecha</th>
+                                <th class="amount-column">Monto</th>
+                                <th class="date-column">Fecha</th>
                                 <th>Descripción</th>
 
                             </tr>
@@ -308,7 +344,7 @@
 
                             <tr th:each="m : ${movements}">
 
-                                <td>
+                                <td data-label="Tipo">
 
                                     <span
                                             th:classappend="${m.type == 'INGRESO'} ? 'bg-success' : 'bg-danger'"
@@ -321,13 +357,39 @@
 
                                 </td>
 
-                                <td th:text="${m.amount}">
+                                <td class="amount-cell"
+                                    data-label="Monto"
+                                    th:text="'S/. ' + ${#numbers.formatDecimal(m.amount,1,2)}">
                                 </td>
 
-                                <td th:text="${m.transactionDate}">
+                                <td class="date-cell"
+                                    data-label="Fecha"
+                                    th:text="${#temporals.format(m.transactionDate, 'dd/MM/yyyy')}">
                                 </td>
 
-                                <td th:text="${m.description}">
+                                <td data-label="Descripción"
+                                    th:text="${m.description}">
+                                </td>
+
+                            </tr>
+
+                            <tr th:if="${#lists.isEmpty(movements)}"
+                                class="empty-row">
+
+                                <td colspan="4">
+
+                                    <div class="empty-state">
+
+                                        <h6>
+                                            No hay movimientos en el periodo seleccionado
+                                        </h6>
+
+                                        <p>
+                                            Ajusta el rango de fechas o registra nuevos movimientos para generar un reporte más completo.
+                                        </p>
+
+                                    </div>
+
                                 </td>
 
                             </tr>
@@ -352,20 +414,26 @@
 
                 <div class="col-md-5 chart-container">
 
-                    <h5>
+                    <div class="chart-intro">
 
-                        Resumen por Categorías
+                        <h5>
+                            Resumen por Categorías
+                        </h5>
 
-                    </h5>
+                        <p>
+                            Distribución acumulada por rubro para detectar concentración de movimientos.
+                        </p>
 
-                    <table class="table table-hover align-middle">
+                    </div>
+
+                    <table class="table table-hover align-middle responsive-card-table">
 
                         <thead>
 
                         <tr>
 
                             <th>Categoría</th>
-                            <th>Total</th>
+                            <th class="amount-column">Total</th>
 
                         </tr>
 
@@ -375,10 +443,38 @@
 
                         <tr th:each="entry : ${categories}">
 
-                            <td th:text="${entry.key}">
+                            <td data-label="Categoría">
+
+                                <span class="table-chip muted"
+                                      th:text="${entry.key}">
+                                </span>
+
                             </td>
 
-                            <td th:text="${entry.value}">
+                            <td class="amount-cell"
+                                data-label="Total"
+                                th:text="'S/. ' + ${#numbers.formatDecimal(entry.value,1,2)}">
+                            </td>
+
+                        </tr>
+
+                        <tr th:if="${#maps.isEmpty(categories)}"
+                            class="empty-row">
+
+                            <td colspan="2">
+
+                                <div class="empty-state">
+
+                                    <h6>
+                                        Sin categorías con movimientos
+                                    </h6>
+
+                                    <p>
+                                        Cuando existan registros en el periodo, aquí verás el resumen acumulado por categoría.
+                                    </p>
+
+                                </div>
+
                             </td>
 
                         </tr>
@@ -393,11 +489,17 @@
 
                 <div class="col-md-6 chart-container">
 
-                    <h5>
+                    <div class="chart-intro">
 
-                        Gráfico por Categorías
+                        <h5>
+                            Gráfico por Categorías
+                        </h5>
 
-                    </h5>
+                        <p>
+                            Lectura visual del volumen por categoría dentro del periodo filtrado.
+                        </p>
+
+                    </div>
 
                     <canvas id="barChart"></canvas>
 
@@ -421,6 +523,10 @@
        id="gastosValue"
        th:value="${gastos}">
 
+<input type="hidden"
+    id="balanceValue"
+    th:value="${balance}">
+
 <!-- DATOS CATEGORIAS -->
 
 <div id="categoryData"
@@ -436,9 +542,11 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
+<div th:replace="~{fragments/layout :: feedback}"></div>
 
-    // DATOS PIE CHART
+<script th:src="@{/js/app.js}"></script>
+
+<script>
 
     const ingresos =
         parseFloat(
@@ -450,41 +558,6 @@
             document.getElementById("gastosValue").value
         ) || 0;
 
-    new Chart(
-        document.getElementById("pieChart"),
-        {
-            type: "pie",
-
-            data: {
-
-                labels: [
-                    "Ingresos",
-                    "Gastos"
-                ],
-
-                datasets: [
-
-                    {
-
-                        data: [
-                            ingresos,
-                            gastos
-                        ],
-
-                        backgroundColor: [
-                            "#28a745",
-                            "#dc3545"
-                        ]
-
-                    }
-
-                ]
-            }
-        }
-    );
-
-    // DATOS BAR CHART
-
     const categoryItems =
         document.querySelectorAll(
             ".category-item"
@@ -493,8 +566,7 @@
     const labels = [];
     const data = [];
 
-    categoryItems.forEach(item => {
-
+    categoryItems.forEach(function (item) {
         labels.push(
             item.dataset.name
         );
@@ -502,48 +574,247 @@
         data.push(
             parseFloat(
                 item.dataset.total
-            )
+            ) || 0
         );
-
     });
+
+    function formatCurrency(value) {
+        return 'S/. ' + Number(value || 0)
+            .toLocaleString(
+                'es-PE',
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+    }
+
+    (function syncSummaryCards() {
+        const incomeElement =
+            document.getElementById(
+                'reportIncomeValue'
+            );
+
+        const expenseElement =
+            document.getElementById(
+                'reportExpenseValue'
+            );
+
+        const balanceElement =
+            document.getElementById(
+                'reportBalanceValue'
+            );
+
+        const balance =
+            parseFloat(
+                document.getElementById('balanceValue').value
+            ) || 0;
+
+        if (incomeElement) {
+            incomeElement.textContent =
+                Number(ingresos).toLocaleString(
+                    'es-PE',
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+        }
+
+        if (expenseElement) {
+            expenseElement.textContent =
+                Number(gastos).toLocaleString(
+                    'es-PE',
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+        }
+
+        if (balanceElement) {
+            balanceElement.textContent =
+                Number(balance).toLocaleString(
+                    'es-PE',
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+        }
+    })();
+
+    (function updateExecutiveSummary() {
+        const reportForm =
+            document.getElementById(
+                'reportForm'
+            );
+
+        const averageElement =
+            document.getElementById(
+                'reportAverageValue'
+            );
+
+        const topCategoryElement =
+            document.getElementById(
+                'reportTopCategory'
+            );
+
+        const densityElement =
+            document.getElementById(
+                'reportDensityValue'
+            );
+
+        const movementRows =
+            Array.from(
+                document.querySelectorAll(
+                    '#movementsTableBody tr'
+                )
+            ).filter(function (row) {
+                return !row.classList.contains('empty-row');
+            });
+
+        const movementCount =
+            movementRows.length;
+
+        const averageValue =
+            movementCount === 0
+                ? 0
+                : (ingresos + gastos) / movementCount;
+
+        if (averageElement) {
+            averageElement.textContent =
+                formatCurrency(averageValue);
+        }
+
+        if (topCategoryElement) {
+            if (!labels.length) {
+                topCategoryElement.textContent = 'Sin datos';
+            } else {
+                let topIndex = 0;
+
+                data.forEach(function (value, index) {
+                    if (value > data[topIndex]) {
+                        topIndex = index;
+                    }
+                });
+
+                topCategoryElement.textContent =
+                    labels[topIndex];
+            }
+        }
+
+        if (densityElement) {
+            const startInput =
+                reportForm
+                    ? reportForm.querySelector('input[name="startDate"]')
+                    : null;
+            const endInput =
+                reportForm
+                    ? reportForm.querySelector('input[name="endDate"]')
+                    : null;
+
+            let density = '0 mov./día';
+
+            if (startInput && endInput
+                && startInput.value
+                && endInput.value) {
+                const startDate =
+                    new Date(startInput.value + 'T00:00:00');
+                const endDate =
+                    new Date(endInput.value + 'T00:00:00');
+
+                const diffDays =
+                    Math.max(
+                        1,
+                        Math.round(
+                            (endDate - startDate)
+                            / 86400000
+                        ) + 1
+                    );
+
+                density =
+                    (movementCount / diffDays)
+                        .toFixed(1)
+                    + ' mov./día';
+            }
+
+            densityElement.textContent = density;
+        }
+    })();
+
+    new Chart(
+        document.getElementById("pieChart"),
+        {
+            type: "doughnut",
+            data: {
+                labels: [
+                    "Ingresos",
+                    "Gastos"
+                ],
+                datasets: [
+                    {
+                        data: ingresos > 0 || gastos > 0
+                            ? [ingresos, gastos]
+                            : [1, 1],
+                        backgroundColor: ingresos > 0 || gastos > 0
+                            ? ["#2b5f9c", "#a34f66"]
+                            : ["#d7e1ef", "#eef3fb"],
+                        borderWidth: 0
+                    }
+                ]
+            },
+            options: {
+                cutout: '64%',
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        }
+    );
 
     new Chart(
         document.getElementById("barChart"),
         {
             type: "bar",
-
             data: {
-
-                labels: labels,
-
+                labels: labels.length
+                    ? labels
+                    : ['Sin datos'],
                 datasets: [
-
                     {
                         label: "Total",
-                        data: data
+                        data: data.length
+                            ? data
+                            : [0],
+                        backgroundColor: "#2b5f9c",
+                        borderRadius: 12,
+                        maxBarThickness: 42
                     }
-
                 ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return 'S/. ' + value;
+                            }
+                        }
+                    }
+                }
             }
         }
     );
-
-</script>
-
-<script>
-
-    function toggleSidebar() {
-
-        document
-            .querySelector(".sidebar")
-            .classList
-            .toggle("active");
-
-        document
-            .querySelector(".sidebar-overlay")
-            .classList
-            .toggle("active");
-    }
 
 </script>
 
@@ -561,9 +832,47 @@
                 "btnPdf"
             );
 
+        const csvButton =
+            document.getElementById(
+                "btnCsv"
+            );
+
+        const presetButtons =
+            document.querySelectorAll(
+                ".report-preset-btn"
+            );
+
         if (!form || !pdfButton) {
             return;
         }
+
+        if (csvButton) {
+            csvButton.addEventListener(
+                "click",
+                function () {
+
+                    exportCsv(
+                        collectReportData()
+                    );
+
+                }
+            );
+        }
+
+        presetButtons.forEach(function (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    applyPresetRange(
+                        button.dataset.range
+                    );
+
+                }
+            );
+
+        });
 
         pdfButton.addEventListener(
             "click",
@@ -618,7 +927,9 @@
 
                     const value =
                         card.querySelector("h3")
-                            ? card.querySelector("h3").textContent.trim()
+                            ? normalizeInlineText(
+                                card.querySelector("h3").textContent
+                            )
                             : "";
 
                     return [
@@ -627,6 +938,16 @@
                     ];
                 });
 
+            const movements =
+                readTableRows(
+                    "movementsTableBody"
+                );
+
+            const categories =
+                readTableRows(
+                    "categoriesTableBody"
+                );
+
             return {
 
                 clientName,
@@ -634,14 +955,14 @@
                 endDate,
                 summaries,
 
-                movements:
-                    readTableRows(
-                        "movementsTableBody"
-                    ),
+                movements,
 
-                categories:
-                    readTableRows(
-                        "categoriesTableBody"
+                categories,
+
+                highlights:
+                    calculateReportHighlights(
+                        movements,
+                        categories
                     ),
 
                 pieChartImage:
@@ -692,6 +1013,86 @@
                 : null;
         }
 
+        function parseCurrencyValue(value) {
+            if (!value) {
+                return 0;
+            }
+
+            return parseFloat(
+                String(value)
+                    .replace(/S\/.\s*/g, '')
+                    .replace(/,/g, '')
+                    .trim()
+            ) || 0;
+        }
+
+        function normalizeInlineText(value) {
+            return String(value || '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function calculateReportHighlights(movements, categories) {
+            let topIncome = null;
+            let topExpense = null;
+            let topCategory = null;
+
+            movements.forEach(function (row) {
+                if (!row || row.length < 4) {
+                    return;
+                }
+
+                const movementType =
+                    (row[0] || '').toUpperCase();
+
+                const amount =
+                    parseCurrencyValue(row[1]);
+
+                if (movementType.indexOf('INGRESO') !== -1) {
+                    if (!topIncome || amount > topIncome.amount) {
+                        topIncome = {
+                            label: row[3] || 'Ingreso registrado',
+                            amount: amount,
+                            meta: row[2] || 'Sin fecha'
+                        };
+                    }
+                }
+
+                if (movementType.indexOf('GASTO') !== -1) {
+                    if (!topExpense || amount > topExpense.amount) {
+                        topExpense = {
+                            label: row[3] || 'Gasto registrado',
+                            amount: amount,
+                            meta: row[2] || 'Sin fecha'
+                        };
+                    }
+                }
+            });
+
+            categories.forEach(function (row) {
+                if (!row || row.length < 2) {
+                    return;
+                }
+
+                const total =
+                    parseCurrencyValue(row[1]);
+
+                if (!topCategory || total > topCategory.amount) {
+                    topCategory = {
+                        label: row[0] || 'Sin categoria',
+                        amount: total,
+                        meta: 'Mayor acumulado del periodo'
+                    };
+                }
+            });
+
+            return {
+                topIncome,
+                topExpense,
+                topCategory
+            };
+        }
+
         function exportPdf(reportData) {
 
             const jsPDF =
@@ -714,26 +1115,37 @@
             const contentWidth =
                 pageWidth - (margin * 2);
 
-            const accentColor =
-                [33,150,243];
+            const theme =
+                readPdfTheme();
 
-            const darkColor =
-                [31,41,55];
+            const accentColor = theme.accent;
 
-            const mutedColor =
-                [107,114,128];
+            const accentStrongColor = theme.accentStrong;
+
+            const darkColor = [22, 34, 54];
+
+            const mutedColor = [102, 119, 145];
+
+            const accentSoftColor = [228, 236, 248];
+
+            const borderColor = [204, 214, 228];
 
             const summaryColors = [
 
-                [40,167,69],
-                [220,53,69],
-                [76,161,175]
+                theme.income,
+                theme.expense,
+                theme.balance
 
             ];
 
+            const summaryStartY = 49;
+            const highlightsSectionY = 74;
+            const chartsSectionY = 105;
+
             addHeader();
             addSummaryCards(reportData.summaries);
-            addSectionTitle("Graficos principales",88);
+            addHighlights(reportData.highlights);
+            addSectionTitle("Graficos principales", chartsSectionY);
             addCharts(reportData);
             addMovementTable(reportData);
             addCategoryTable(reportData);
@@ -747,63 +1159,233 @@
             );
 
             function addHeader() {
-                doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
-                doc.roundedRect(margin, 12, contentWidth, 28, 3, 3, 'F');
-                doc.setTextColor(255, 255, 255);
+                doc.setDrawColor(
+                    borderColor[0],
+                    borderColor[1],
+                    borderColor[2]
+                );
+                doc.setLineWidth(0.5);
+                doc.line(margin, 14, pageWidth - margin, 14);
+
+                doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
                 doc.setFont('helvetica', 'bold');
-                doc.setFontSize(20);
-                doc.text('Reporte financiero del cliente', margin + 4, 23);
+                doc.setFontSize(8.5);
+                doc.text('SISTEMA CONTADOR', margin, 21);
+
+                doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+                doc.setFontSize(18);
+                doc.text('Reporte financiero del cliente', margin, 30);
+
                 doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                doc.text('Cliente: ' + reportData.clientName, margin + 4, 31);
-                doc.text('Periodo: ' + reportData.startDate + ' al ' + reportData.endDate, margin + 4, 36);
+                doc.setFontSize(10.5);
+                doc.text('Cliente: ' + reportData.clientName, margin, 37.5);
+                doc.text('Periodo: ' + reportData.startDate + ' al ' + reportData.endDate, margin, 43);
+
+                doc.setDrawColor(
+                    accentSoftColor[0],
+                    accentSoftColor[1],
+                    accentSoftColor[2]
+                );
+                doc.setLineWidth(1.2);
+                doc.line(margin, 48, pageWidth - margin, 48);
                 doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
             }
 
             function addSummaryCards(summaries) {
-                const cardWidth = (contentWidth - 8) / 3;
-                const cardY = 48;
+                const cardWidth = (contentWidth - 10) / 3;
+                const blockHeight = 18;
 
                 summaries.forEach(function (item, index) {
-                    const cardX = margin + (index * (cardWidth + 4));
+                    const cardX = margin + (index * (cardWidth + 5));
                     const color = summaryColors[index] || accentColor;
+                    const centerX = cardX + (cardWidth / 2);
+                    const amountText =
+                        formatCurrency(
+                            parseCurrencyValue(item[1])
+                        );
 
-                    doc.setFillColor(color[0], color[1], color[2]);
-                    doc.roundedRect(cardX, cardY, cardWidth, 24, 3, 3, 'F');
-                    doc.setTextColor(255, 255, 255);
+                    if (index > 0) {
+                        doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+                        doc.setLineWidth(0.2);
+                        doc.line(cardX - 2.5, summaryStartY + 1, cardX - 2.5, summaryStartY + blockHeight);
+                    }
+
+                    doc.setTextColor(mutedColor[0], mutedColor[1], mutedColor[2]);
                     doc.setFont('helvetica', 'bold');
-                    doc.setFontSize(11);
-                    doc.text(item[0], cardX + 4, cardY + 8);
-                    doc.setFontSize(14);
-                    doc.text(item[1], cardX + 4, cardY + 17);
+                    doc.setFontSize(8.5);
+                    doc.text(item[0].toUpperCase(), centerX, summaryStartY + 4, {
+                        align: 'center'
+                    });
+
+                    doc.setTextColor(color[0], color[1], color[2]);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(16);
+                    doc.text(amountText, centerX, summaryStartY + 11, {
+                        align: 'center'
+                    });
+
+                    doc.setDrawColor(color[0], color[1], color[2]);
+                    doc.setLineWidth(0.7);
+                    doc.line(cardX + 10, summaryStartY + 14.5, cardX + cardWidth - 10, summaryStartY + 14.5);
+
+                    doc.setTextColor(mutedColor[0], mutedColor[1], mutedColor[2]);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(7);
+                    doc.text('Resumen del periodo', centerX, summaryStartY + 18, {
+                        align: 'center'
+                    });
+                });
+
+                doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+            }
+
+            function addHighlights(highlights) {
+                const items = [
+                    {
+                        title: 'Mayor ingreso',
+                        data: highlights.topIncome,
+                        color: summaryColors[0]
+                    },
+                    {
+                        title: 'Mayor gasto',
+                        data: highlights.topExpense,
+                        color: summaryColors[1]
+                    },
+                    {
+                        title: 'Categoria principal',
+                        data: highlights.topCategory,
+                        color: accentColor
+                    }
+                ];
+
+                addSectionTitle('Destacados del periodo', highlightsSectionY);
+
+                const itemWidth = (contentWidth - 10) / 3;
+                const itemY = highlightsSectionY + 9;
+
+                items.forEach(function (item, index) {
+                    const boxX = margin + (index * (itemWidth + 5));
+                    const centerX = boxX + (itemWidth / 2);
+                    const boxData = item.data || {
+                        label: 'Sin datos',
+                        amount: 0,
+                        meta: 'No hay registros suficientes'
+                    };
+
+                    if (index > 0) {
+                        doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+                        doc.setLineWidth(0.2);
+                        doc.line(boxX - 2.5, itemY + 1, boxX - 2.5, itemY + 18);
+                    }
+
+                    doc.setTextColor(item.color[0], item.color[1], item.color[2]);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(8.5);
+                    doc.text(item.title.toUpperCase(), centerX, itemY + 4, {
+                        align: 'center'
+                    });
+
+                    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+                    doc.setFontSize(9.5);
+                    doc.text(
+                        String(boxData.label).slice(0, 28),
+                        centerX,
+                        itemY + 9,
+                        { align: 'center' }
+                    );
+
+                    doc.setFontSize(10.5);
+                    doc.text(
+                        formatCurrency(boxData.amount),
+                        centerX,
+                        itemY + 14,
+                        { align: 'center' }
+                    );
+
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(7);
+                    doc.setTextColor(mutedColor[0], mutedColor[1], mutedColor[2]);
+                    doc.text(
+                        String(boxData.meta).slice(0, 30),
+                        centerX,
+                        itemY + 18,
+                        { align: 'center' }
+                    );
                 });
 
                 doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
             }
 
             function addSectionTitle(title, y) {
-                doc.setFillColor(239, 246, 255);
-                doc.roundedRect(margin, y, contentWidth, 9, 2, 2, 'F');
                 doc.setFont('helvetica', 'bold');
-                doc.setFontSize(12);
+                doc.setFontSize(10.5);
                 doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
-                doc.text(title, margin + 4, y + 6);
+                doc.text(title, margin, y + 1.5);
+                doc.setDrawColor(accentSoftColor[0], accentSoftColor[1], accentSoftColor[2]);
+                doc.setLineWidth(0.7);
+                doc.line(margin, y + 4, pageWidth - margin, y + 4);
                 doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
             }
 
             function addCharts(data) {
-                const chartY = 101;
+                const boxY = chartsSectionY + 8;
+                const boxHeight = 64;
+                const gap = 6;
+                const pieWidth = 62;
+                const barWidth = contentWidth - pieWidth - gap;
+
+                drawChartPanel(
+                    margin,
+                    boxY,
+                    pieWidth,
+                    boxHeight,
+                    'Ingresos vs gastos',
+                    'Relacion general entre entradas y salidas.',
+                    data.pieChartImage,
+                    { x: margin + 2, y: boxY + 15, width: pieWidth - 4, height: 46 }
+                );
+
+                drawChartPanel(
+                    margin + pieWidth + gap,
+                    boxY,
+                    barWidth,
+                    boxHeight,
+                    'Movimientos por categoria',
+                    'Distribucion del volumen acumulado por rubro.',
+                    data.barChartImage,
+                    { x: margin + pieWidth + gap + 1, y: boxY + 15, width: barWidth - 2, height: 48 }
+                );
+            }
+
+            function drawChartPanel(x, y, width, height, title, note, image, imageBox) {
                 doc.setFont('helvetica', 'bold');
-                doc.setFontSize(10);
+                doc.setFontSize(9.5);
+                doc.setTextColor(accentStrongColor[0], accentStrongColor[1], accentStrongColor[2]);
+                doc.text(title, x, y + 2);
 
-                if (data.pieChartImage) {
-                    doc.text('Ingresos vs gastos', margin, chartY);
-                    doc.addImage(data.pieChartImage, 'PNG', margin, chartY + 4, 62, 62);
-                }
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(7.5);
+                doc.setTextColor(mutedColor[0], mutedColor[1], mutedColor[2]);
+                doc.text(note, x, y + 7, { maxWidth: width });
 
-                if (data.barChartImage) {
-                    doc.text('Movimientos por categoria', margin + 72, chartY);
-                    doc.addImage(data.barChartImage, 'PNG', margin + 72, chartY + 4, 110, 62);
+                doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+                doc.setLineWidth(0.2);
+                doc.line(x, y + 10, x + width, y + 10);
+
+                if (image) {
+                    doc.addImage(
+                        image,
+                        'PNG',
+                        imageBox.x,
+                        imageBox.y,
+                        imageBox.width,
+                        imageBox.height
+                    );
+                } else {
+                    doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+                    doc.line(imageBox.x, imageBox.y + 18, imageBox.x + imageBox.width, imageBox.y + 18);
+                    doc.setFontSize(9);
+                    doc.text('Grafico no disponible', imageBox.x + 6, imageBox.y + 16);
                 }
             }
 
@@ -824,16 +1406,33 @@
                         "-"
                     ]
                 ];
-                addSectionTitle('Resumen de movimientos', 172);
+                addSectionTitle('Resumen de movimientos', 183);
                 doc.autoTable({
-                    startY: 184,
+                    startY: 191,
                     head: movementHeaders,
                     body: data.movements.length ? data.movements : notMovements,
                     margin: { left: margin, right: margin },
-                    styles: { fontSize: 9, cellPadding: 3, textColor: darkColor },
-                    headStyles: { fillColor: accentColor, textColor: [255, 255, 255], fontStyle: 'bold' },
-                    alternateRowStyles: { fillColor: [248, 250, 252] },
-                    bodyStyles: { valign: 'middle' }
+                    styles: {
+                        fontSize: 9,
+                        cellPadding: 3.5,
+                        textColor: darkColor,
+                        lineColor: borderColor,
+                        lineWidth: 0.1
+                    },
+                    headStyles: {
+                        fillColor: accentColor,
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold',
+                        halign: 'left'
+                    },
+                    alternateRowStyles: { fillColor: accentSoftColor },
+                    tableLineColor: borderColor,
+                    tableLineWidth: 0.1,
+                    bodyStyles: { valign: 'middle' },
+                    columnStyles: {
+                        1: { halign: 'right' },
+                        2: { halign: 'center' }
+                    }
                 });
             }
 
@@ -869,9 +1468,25 @@
                     head: headCategories,
                     body: data.categories.length ? data.categories : notCategories,
                     margin: { left: margin, right: margin },
-                    styles: { fontSize: 9, cellPadding: 3, textColor: darkColor },
-                    headStyles: { fillColor: [76, 161, 175], textColor: [255, 255, 255], fontStyle: 'bold' },
-                    alternateRowStyles: { fillColor: [248, 250, 252] }
+                    styles: {
+                        fontSize: 9,
+                        cellPadding: 3.5,
+                        textColor: darkColor,
+                        lineColor: borderColor,
+                        lineWidth: 0.1
+                    },
+                    headStyles: {
+                        fillColor: accentStrongColor,
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold',
+                        halign: 'left'
+                    },
+                    alternateRowStyles: { fillColor: accentSoftColor },
+                    tableLineColor: borderColor,
+                    tableLineWidth: 0.1,
+                    columnStyles: {
+                        1: { halign: 'right' }
+                    }
                 });
             }
 
@@ -880,7 +1495,11 @@
 
                 for (let page = 1; page <= pageCount; page++) {
                     doc.setPage(page);
-                    doc.setDrawColor(226, 232, 240);
+                    doc.setDrawColor(
+                        borderColor[0],
+                        borderColor[1],
+                        borderColor[2]
+                    );
                     doc.line(margin, pageHeight - 10, pageWidth - margin, pageHeight - 10);
                     doc.setFont('helvetica', 'normal');
                     doc.setFontSize(8);
@@ -888,6 +1507,106 @@
                     doc.text('Sistema Contador', margin, pageHeight - 6);
                     doc.text('Pagina ' + page + ' de ' + pageCount, pageWidth - margin - 22, pageHeight - 6);
                 }
+            }
+
+            function readPdfTheme() {
+                const rootStyles =
+                    window.getComputedStyle(
+                        document.documentElement
+                    );
+
+                return {
+                    accent: cssColorToRgb(
+                        rootStyles.getPropertyValue('--accent'),
+                        [30, 68, 120]
+                    ),
+                    accentStrong: cssColorToRgb(
+                        rootStyles.getPropertyValue('--accent-strong'),
+                        [17, 44, 85]
+                    ),
+                    accentSoft: cssColorToRgb(
+                        rootStyles.getPropertyValue('--accent-soft'),
+                        [228, 236, 248]
+                    ),
+                    text: cssColorToRgb(
+                        rootStyles.getPropertyValue('--text'),
+                        [22, 34, 54]
+                    ),
+                    muted: cssColorToRgb(
+                        rootStyles.getPropertyValue('--muted'),
+                        [102, 119, 145]
+                    ),
+                    border: cssColorToRgb(
+                        rootStyles.getPropertyValue('--border'),
+                        [206, 216, 233]
+                    ),
+                    income: cssColorToRgb(
+                        rootStyles.getPropertyValue('--income'),
+                        [43, 95, 156]
+                    ),
+                    expense: cssColorToRgb(
+                        rootStyles.getPropertyValue('--expense'),
+                        [163, 79, 102]
+                    ),
+                    balance: cssColorToRgb(
+                        rootStyles.getPropertyValue('--balance'),
+                        [199, 156, 61]
+                    )
+                };
+            }
+
+            function cssColorToRgb(value, fallback) {
+                const color =
+                    (value || '').trim();
+
+                if (!color) {
+                    return fallback;
+                }
+
+                if (color.startsWith('#')) {
+                    return hexToRgb(color, fallback);
+                }
+
+                const rgbMatch =
+                    color.match(/rgba?\(([^)]+)\)/i);
+
+                if (!rgbMatch) {
+                    return fallback;
+                }
+
+                const parts = rgbMatch[1]
+                    .split(',')
+                    .slice(0, 3)
+                    .map(function (part) {
+                        return Math.round(
+                            parseFloat(part.trim())
+                        );
+                    });
+
+                return parts.length === 3
+                    && parts.every(Number.isFinite)
+                    ? parts
+                    : fallback;
+            }
+
+            function hexToRgb(value, fallback) {
+                const hex = value.replace('#', '').trim();
+                const normalized =
+                    hex.length === 3
+                        ? hex.split('').map(function (char) {
+                            return char + char;
+                        }).join('')
+                        : hex;
+
+                if (!/^[0-9a-fA-F]{6}$/.test(normalized)) {
+                    return fallback;
+                }
+
+                return [
+                    parseInt(normalized.slice(0, 2), 16),
+                    parseInt(normalized.slice(2, 4), 16),
+                    parseInt(normalized.slice(4, 6), 16)
+                ];
             }
 
         }
@@ -912,6 +1631,136 @@
                 "." +
                 extension
             );
+        }
+
+        function applyPresetRange(range) {
+
+            const startDateInput =
+                form.querySelector(
+                    '[name="startDate"]'
+                );
+
+            const endDateInput =
+                form.querySelector(
+                    '[name="endDate"]'
+                );
+
+            const today = new Date();
+            const endDate = new Date(today);
+            let startDate = new Date(today);
+
+            if (range === "today") {
+                startDate = new Date(today);
+            }
+
+            if (range === "7days") {
+                startDate.setDate(today.getDate() - 6);
+            }
+
+            if (range === "30days") {
+                startDate.setDate(today.getDate() - 29);
+            }
+
+            if (range === "month") {
+                startDate = new Date(
+                    today.getFullYear(),
+                    today.getMonth(),
+                    1
+                );
+            }
+
+            startDateInput.value = formatDateValue(startDate);
+            endDateInput.value = formatDateValue(endDate);
+            form.submit();
+        }
+
+        function formatDateValue(date) {
+
+            const year = date.getFullYear();
+            const month = String(
+                date.getMonth() + 1
+            ).padStart(2, "0");
+            const day = String(
+                date.getDate()
+            ).padStart(2, "0");
+
+            return year + "-" + month + "-" + day;
+        }
+
+        function exportCsv(reportData) {
+
+            const rows = [];
+
+            rows.push(["Cliente", reportData.clientName]);
+            rows.push(["Fecha inicial", reportData.startDate]);
+            rows.push(["Fecha final", reportData.endDate]);
+            rows.push([]);
+            rows.push(["Resumen", "Valor"]);
+
+            reportData.summaries.forEach(function (item) {
+                rows.push(item);
+            });
+
+            rows.push([]);
+            rows.push(["Movimientos"]);
+            rows.push(["Tipo", "Monto", "Fecha", "Descripcion"]);
+
+            if (reportData.movements.length) {
+                reportData.movements.forEach(function (row) {
+                    rows.push(row);
+                });
+            } else {
+                rows.push(["Sin movimientos", "", "", ""]);
+            }
+
+            rows.push([]);
+            rows.push(["Categorias"]);
+            rows.push(["Categoria", "Total"]);
+
+            if (reportData.categories.length) {
+                reportData.categories.forEach(function (row) {
+                    rows.push(row);
+                });
+            } else {
+                rows.push(["Sin categorias", ""]);
+            }
+
+            downloadCsv(
+                buildFileName(
+                    reportData.clientName,
+                    "csv"
+                ),
+                rows
+            );
+        }
+
+        function downloadCsv(fileName, rows) {
+
+            const csvContent = rows
+                .map(function (row) {
+                    return row
+                        .map(function (value) {
+                            const safeValue = String(value || "")
+                                .replace(/"/g, '""');
+                            return '"' + safeValue + '"';
+                        })
+                        .join(",");
+                })
+                .join("\n");
+
+            const blob = new Blob(
+                ["\ufeff" + csvContent],
+                { type: "text/csv;charset=utf-8;" }
+            );
+
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+
+            link.href = url;
+            link.download = fileName;
+            link.click();
+
+            URL.revokeObjectURL(url);
         }
 
     })();

@@ -2,9 +2,11 @@ package SistemaContador.controller;
 
 import SistemaContador.model.User;
 import SistemaContador.service.UserService;
+import SistemaContador.util.UiFeedbackUtil;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -14,15 +16,29 @@ public class AuthController {
     private final UserService userService;
 
     @GetMapping("/login")
-    public String loginPage(HttpSession session) {
+    public String loginPage(
+            HttpSession session,
+            Model model
+    ) {
 
-        session.removeAttribute("error");
+        UiFeedbackUtil.moveFeedbackFromSession(
+                session,
+                model
+        );
 
         return "auth/login";
     }
 
     @GetMapping("/register")
-    public String registerPage() {
+    public String registerPage(
+            HttpSession session,
+            Model model
+    ) {
+        UiFeedbackUtil.moveFeedbackFromSession(
+                session,
+                model
+        );
+
         return "auth/register";
     }
 
@@ -38,10 +54,20 @@ public class AuthController {
 
             session.setAttribute("user",user);
 
+            UiFeedbackUtil.queueFeedback(
+                    session,
+                    "success",
+                    "Bienvenido nuevamente al sistema contable"
+            );
+
             return "redirect:/dashboard";
         }
 
-        session.setAttribute("error","Credenciales incorrectas");
+        UiFeedbackUtil.queueFeedback(
+                session,
+                "danger",
+                "Credenciales incorrectas"
+        );
 
         return "redirect:/login";
     }
@@ -56,8 +82,9 @@ public class AuthController {
 
         if(!password.equals(confirmPassword)){
 
-            session.setAttribute(
-                    "error",
+            UiFeedbackUtil.queueFeedback(
+                    session,
+                    "danger",
                     "Las contraseñas no coinciden"
             );
 
@@ -66,8 +93,9 @@ public class AuthController {
 
         if(userService.emailExists(email)){
 
-            session.setAttribute(
-                    "error",
+            UiFeedbackUtil.queueFeedback(
+                    session,
+                    "danger",
                     "El correo ya está en uso"
             );
 
@@ -83,6 +111,12 @@ public class AuthController {
         user = userService.register(user);
 
         session.setAttribute("user",user);
+
+        UiFeedbackUtil.queueFeedback(
+                session,
+                "success",
+                "Cuenta creada correctamente"
+        );
 
         return "redirect:/dashboard";
     }
