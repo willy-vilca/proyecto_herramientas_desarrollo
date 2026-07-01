@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="metric-card(title, value, note, cardClass, valueId)"
+     class="card p-3 shadow"
+     th:classappend="${cardClass}">
+
+    <h5 th:text="${title}"></h5>
+
+    <h3>
+        S/.
+        <span th:if="${valueId != null}"
+              th:id="${valueId}"
+              th:text="${value}">
+        </span>
+        <span th:unless="${valueId != null}"
+              th:text="${value}">
+        </span>
+    </h3>
+
+    <div class="metric-note"
+         th:text="${note}">
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -3,6 +3,7 @@ package SistemaContador.controller;
 import SistemaContador.model.Client;
 import SistemaContador.model.User;
 import SistemaContador.service.ClientService;
+import SistemaContador.util.UiFeedbackUtil;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -29,6 +30,11 @@ public class ClientController {
         if(user == null){
             return "redirect:/login";
         }
+
+        UiFeedbackUtil.moveFeedbackFromSession(
+                session,
+                model
+        );
 
         model.addAttribute(
                 "clients",
@@ -63,15 +69,16 @@ public class ClientController {
                 !client.getPhone().matches("\\d{9}")) {
 
             model.addAttribute(
-                    "error",
-                    "El número de teléfono debe tener exactamente 9 dígitos"
-            );
-
-            model.addAttribute(
                     "clients",
                     clientService.getClientsByUser(
                             user.getUserId()
                     )
+            );
+
+            UiFeedbackUtil.addFeedback(
+                    model,
+                    "danger",
+                    "El número de teléfono debe tener exactamente 9 dígitos"
             );
 
             return "clients";
@@ -83,15 +90,16 @@ public class ClientController {
                 !client.getDocumentNumber().matches("\\d{8}")) {
 
             model.addAttribute(
-                    "error",
-                    "El número del DNI debe tener exactamente 8 dígitos"
-            );
-
-            model.addAttribute(
                     "clients",
                     clientService.getClientsByUser(
                             user.getUserId()
                     )
+            );
+
+            UiFeedbackUtil.addFeedback(
+                    model,
+                    "danger",
+                    "El número del DNI debe tener exactamente 8 dígitos"
             );
 
             return "clients";
@@ -103,15 +111,16 @@ public class ClientController {
                 !client.getDocumentNumber().matches("\\d{11}")) {
 
             model.addAttribute(
-                    "error",
-                    "El número del RUC debe tener exactamente 11 dígitos"
-            );
-
-            model.addAttribute(
                     "clients",
                     clientService.getClientsByUser(
                             user.getUserId()
                     )
+            );
+
+            UiFeedbackUtil.addFeedback(
+                    model,
+                    "danger",
+                    "El número del RUC debe tener exactamente 11 dígitos"
             );
 
             return "clients";
@@ -123,11 +132,23 @@ public class ClientController {
 
             clientService.update(client);
 
+            UiFeedbackUtil.queueFeedback(
+                    session,
+                    "success",
+                    "Cliente actualizado correctamente"
+            );
+
         } else {
 
             client.setStatus(true);
 
             clientService.save(client);
+
+            UiFeedbackUtil.queueFeedback(
+                    session,
+                    "success",
+                    "Cliente registrado correctamente"
+            );
         }
 
         return "redirect:/clients";
@@ -135,9 +156,16 @@ public class ClientController {
 
     @GetMapping("/deleteClient")
     public String deleteClient(
-            @RequestParam Integer id) {
+            @RequestParam Integer id,
+            HttpSession session) {
 
         clientService.delete(id);
+
+        UiFeedbackUtil.queueFeedback(
+                session,
+                "success",
+                "Cliente eliminado correctamente"
+        );
 
         return "redirect:/clients";
     }
