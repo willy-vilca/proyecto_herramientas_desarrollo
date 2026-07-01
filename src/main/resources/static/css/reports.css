@@ -121,6 +121,21 @@
     gap: 0.75rem;
 }
 
+html[data-theme="dark"] #reportForm #btnPdf {
+    border-color: rgba(240, 107, 107, 0.62);
+    background: linear-gradient(135deg, rgba(132, 34, 52, 0.96) 0%, rgba(191, 75, 90, 0.92) 100%);
+    color: #fff3f5;
+    box-shadow: 0 16px 30px rgba(120, 28, 44, 0.34);
+}
+
+html[data-theme="dark"] #reportForm #btnPdf:hover,
+html[data-theme="dark"] #reportForm #btnPdf:focus {
+    border-color: rgba(255, 163, 177, 0.82);
+    background: linear-gradient(135deg, rgba(156, 42, 61, 1) 0%, rgba(214, 92, 107, 0.98) 100%);
+    color: #ffffff;
+    box-shadow: 0 18px 34px rgba(145, 38, 56, 0.4);
+}
+
 #reportForm .btn {
     min-height: 48px;
 }

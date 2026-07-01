@@ -247,7 +247,7 @@
                             ${#numbers.formatDecimal(ingresos,1,2)},
                             'Entradas acumuladas dentro del rango consultado.',
                             'report-card card-income shadow mb-3 mb-md-0',
-                            null
+                            'reportIncomeValue'
                         )}">
                     </div>
 
@@ -260,7 +260,7 @@
                             ${#numbers.formatDecimal(gastos,1,2)},
                             'Salidas registradas para este cliente.',
                             'report-card card-expense shadow mb-3 mb-md-0',
-                            null
+                            'reportExpenseValue'
                         )}">
                     </div>
 
@@ -273,7 +273,7 @@
                             ${#numbers.formatDecimal(balance,1,2)},
                             'Diferencia neta entre ingresos y gastos.',
                             'report-card card-balance shadow',
-                            null
+                            'reportBalanceValue'
                         )}">
                     </div>
 
@@ -523,6 +523,10 @@
        id="gastosValue"
        th:value="${gastos}">
 
+<input type="hidden"
+    id="balanceValue"
+    th:value="${balance}">
+
 <!-- DATOS CATEGORIAS -->
 
 <div id="categoryData"
@@ -584,6 +588,61 @@
                 }
             );
     }
+
+    (function syncSummaryCards() {
+        const incomeElement =
+            document.getElementById(
+                'reportIncomeValue'
+            );
+
+        const expenseElement =
+            document.getElementById(
+                'reportExpenseValue'
+            );
+
+        const balanceElement =
+            document.getElementById(
+                'reportBalanceValue'
+            );
+
+        const balance =
+            parseFloat(
+                document.getElementById('balanceValue').value
+            ) || 0;
+
+        if (incomeElement) {
+            incomeElement.textContent =
+                Number(ingresos).toLocaleString(
+                    'es-PE',
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+        }
+
+        if (expenseElement) {
+            expenseElement.textContent =
+                Number(gastos).toLocaleString(
+                    'es-PE',
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+        }
+
+        if (balanceElement) {
+            balanceElement.textContent =
+                Number(balance).toLocaleString(
+                    'es-PE',
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+        }
+    })();
 
     (function updateExecutiveSummary() {
         const reportForm =
@@ -868,7 +927,9 @@
 
                     const value =
                         card.querySelector("h3")
-                            ? card.querySelector("h3").textContent.trim()
+                            ? normalizeInlineText(
+                                card.querySelector("h3").textContent
+                            )
                             : "";
 
                     return [
@@ -877,6 +938,16 @@
                     ];
                 });
 
+            const movements =
+                readTableRows(
+                    "movementsTableBody"
+                );
+
+            const categories =
+                readTableRows(
+                    "categoriesTableBody"
+                );
+
             return {
 
                 clientName,
@@ -884,14 +955,14 @@
                 endDate,
                 summaries,
 
-                movements:
-                    readTableRows(
-                        "movementsTableBody"
-                    ),
+                movements,
 
-                categories:
-                    readTableRows(
-                        "categoriesTableBody"
+                categories,
+
+                highlights:
+                    calculateReportHighlights(
+                        movements,
+                        categories
                     ),
 
                 pieChartImage:
@@ -942,6 +1013,86 @@
                 : null;
         }
 
+        function parseCurrencyValue(value) {
+            if (!value) {
+                return 0;
+            }
+
+            return parseFloat(
+                String(value)
+                    .replace(/S\/.\s*/g, '')
+                    .replace(/,/g, '')
+                    .trim()
+            ) || 0;
+        }
+
+        function normalizeInlineText(value) {
+            return String(value || '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function calculateReportHighlights(movements, categories) {
+            let topIncome = null;
+            let topExpense = null;
+            let topCategory = null;
+
+            movements.forEach(function (row) {
+                if (!row || row.length < 4) {
+                    return;
+                }
+
+                const movementType =
+                    (row[0] || '').toUpperCase();
+
+                const amount =
+                    parseCurrencyValue(row[1]);
+
+                if (movementType.indexOf('INGRESO') !== -1) {
+                    if (!topIncome || amount > topIncome.amount) {
+                        topIncome = {
+                            label: row[3] || 'Ingreso registrado',
+                            amount: amount,
+                            meta: row[2] || 'Sin fecha'
+                        };
+                    }
+                }
+
+                if (movementType.indexOf('GASTO') !== -1) {
+                    if (!topExpense || amount > topExpense.amount) {
+                        topExpense = {
+                            label: row[3] || 'Gasto registrado',
+                            amount: amount,
+                            meta: row[2] || 'Sin fecha'
+                        };
+                    }
+                }
+            });
+
+            categories.forEach(function (row) {
+                if (!row || row.length < 2) {
+                    return;
+                }
+
+                const total =
+                    parseCurrencyValue(row[1]);
+
+                if (!topCategory || total > topCategory.amount) {
+                    topCategory = {
+                        label: row[0] || 'Sin categoria',
+                        amount: total,
+                        meta: 'Mayor acumulado del periodo'
+                    };
+                }
+            });
+
+            return {
+                topIncome,
+                topExpense,
+                topCategory
+            };
+        }
+
         function exportPdf(reportData) {
 
             const jsPDF =
@@ -967,23 +1118,17 @@
             const theme =
                 readPdfTheme();
 
-            const accentColor =
-                theme.accent;
+            const accentColor = theme.accent;
 
-            const accentStrongColor =
-                theme.accentStrong;
+            const accentStrongColor = theme.accentStrong;
 
-            const darkColor =
-                theme.text;
+            const darkColor = [22, 34, 54];
 
-            const mutedColor =
-                theme.muted;
+            const mutedColor = [102, 119, 145];
 
-            const accentSoftColor =
-                theme.accentSoft;
+            const accentSoftColor = [228, 236, 248];
 
-            const borderColor =
-                theme.border;
+            const borderColor = [204, 214, 228];
 
             const summaryColors = [
 
@@ -993,9 +1138,14 @@
 
             ];
 
+            const summaryStartY = 49;
+            const highlightsSectionY = 74;
+            const chartsSectionY = 105;
+
             addHeader();
             addSummaryCards(reportData.summaries);
-            addSectionTitle("Graficos principales",88);
+            addHighlights(reportData.highlights);
+            addSectionTitle("Graficos principales", chartsSectionY);
             addCharts(reportData);
             addMovementTable(reportData);
             addCategoryTable(reportData);
@@ -1009,81 +1159,233 @@
             );
 
             function addHeader() {
-                doc.setFillColor(
-                    accentStrongColor[0],
-                    accentStrongColor[1],
-                    accentStrongColor[2]
+                doc.setDrawColor(
+                    borderColor[0],
+                    borderColor[1],
+                    borderColor[2]
                 );
-                doc.roundedRect(margin, 12, contentWidth, 28, 3, 3, 'F');
-                doc.setFillColor(
-                    accentColor[0],
-                    accentColor[1],
-                    accentColor[2]
-                );
-                doc.roundedRect(margin, 12, contentWidth, 6, 3, 3, 'F');
-                doc.setTextColor(255, 255, 255);
+                doc.setLineWidth(0.5);
+                doc.line(margin, 14, pageWidth - margin, 14);
+
+                doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
                 doc.setFont('helvetica', 'bold');
-                doc.setFontSize(20);
-                doc.text('Reporte financiero del cliente', margin + 4, 23);
+                doc.setFontSize(8.5);
+                doc.text('SISTEMA CONTADOR', margin, 21);
+
+                doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+                doc.setFontSize(18);
+                doc.text('Reporte financiero del cliente', margin, 30);
+
                 doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                doc.text('Cliente: ' + reportData.clientName, margin + 4, 31);
-                doc.text('Periodo: ' + reportData.startDate + ' al ' + reportData.endDate, margin + 4, 36);
+                doc.setFontSize(10.5);
+                doc.text('Cliente: ' + reportData.clientName, margin, 37.5);
+                doc.text('Periodo: ' + reportData.startDate + ' al ' + reportData.endDate, margin, 43);
+
+                doc.setDrawColor(
+                    accentSoftColor[0],
+                    accentSoftColor[1],
+                    accentSoftColor[2]
+                );
+                doc.setLineWidth(1.2);
+                doc.line(margin, 48, pageWidth - margin, 48);
                 doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
             }
 
             function addSummaryCards(summaries) {
-                const cardWidth = (contentWidth - 8) / 3;
-                const cardY = 48;
+                const cardWidth = (contentWidth - 10) / 3;
+                const blockHeight = 18;
 
                 summaries.forEach(function (item, index) {
-                    const cardX = margin + (index * (cardWidth + 4));
+                    const cardX = margin + (index * (cardWidth + 5));
                     const color = summaryColors[index] || accentColor;
+                    const centerX = cardX + (cardWidth / 2);
+                    const amountText =
+                        formatCurrency(
+                            parseCurrencyValue(item[1])
+                        );
 
-                    doc.setFillColor(color[0], color[1], color[2]);
-                    doc.roundedRect(cardX, cardY, cardWidth, 24, 3, 3, 'F');
-                    doc.setFillColor(255, 255, 255);
-                    doc.setGState(new doc.GState({ opacity: 0.12 }));
-                    doc.circle(cardX + cardWidth - 8, cardY + 18, 9, 'F');
-                    doc.setGState(new doc.GState({ opacity: 1 }));
-                    doc.setTextColor(255, 255, 255);
+                    if (index > 0) {
+                        doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+                        doc.setLineWidth(0.2);
+                        doc.line(cardX - 2.5, summaryStartY + 1, cardX - 2.5, summaryStartY + blockHeight);
+                    }
+
+                    doc.setTextColor(mutedColor[0], mutedColor[1], mutedColor[2]);
                     doc.setFont('helvetica', 'bold');
-                    doc.setFontSize(11);
-                    doc.text(item[0], cardX + 4, cardY + 8);
-                    doc.setFontSize(14);
-                    doc.text(item[1], cardX + 4, cardY + 17);
+                    doc.setFontSize(8.5);
+                    doc.text(item[0].toUpperCase(), centerX, summaryStartY + 4, {
+                        align: 'center'
+                    });
+
+                    doc.setTextColor(color[0], color[1], color[2]);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(16);
+                    doc.text(amountText, centerX, summaryStartY + 11, {
+                        align: 'center'
+                    });
+
+                    doc.setDrawColor(color[0], color[1], color[2]);
+                    doc.setLineWidth(0.7);
+                    doc.line(cardX + 10, summaryStartY + 14.5, cardX + cardWidth - 10, summaryStartY + 14.5);
+
+                    doc.setTextColor(mutedColor[0], mutedColor[1], mutedColor[2]);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(7);
+                    doc.text('Resumen del periodo', centerX, summaryStartY + 18, {
+                        align: 'center'
+                    });
+                });
+
+                doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+            }
+
+            function addHighlights(highlights) {
+                const items = [
+                    {
+                        title: 'Mayor ingreso',
+                        data: highlights.topIncome,
+                        color: summaryColors[0]
+                    },
+                    {
+                        title: 'Mayor gasto',
+                        data: highlights.topExpense,
+                        color: summaryColors[1]
+                    },
+                    {
+                        title: 'Categoria principal',
+                        data: highlights.topCategory,
+                        color: accentColor
+                    }
+                ];
+
+                addSectionTitle('Destacados del periodo', highlightsSectionY);
+
+                const itemWidth = (contentWidth - 10) / 3;
+                const itemY = highlightsSectionY + 9;
+
+                items.forEach(function (item, index) {
+                    const boxX = margin + (index * (itemWidth + 5));
+                    const centerX = boxX + (itemWidth / 2);
+                    const boxData = item.data || {
+                        label: 'Sin datos',
+                        amount: 0,
+                        meta: 'No hay registros suficientes'
+                    };
+
+                    if (index > 0) {
+                        doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+                        doc.setLineWidth(0.2);
+                        doc.line(boxX - 2.5, itemY + 1, boxX - 2.5, itemY + 18);
+                    }
+
+                    doc.setTextColor(item.color[0], item.color[1], item.color[2]);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(8.5);
+                    doc.text(item.title.toUpperCase(), centerX, itemY + 4, {
+                        align: 'center'
+                    });
+
+                    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+                    doc.setFontSize(9.5);
+                    doc.text(
+                        String(boxData.label).slice(0, 28),
+                        centerX,
+                        itemY + 9,
+                        { align: 'center' }
+                    );
+
+                    doc.setFontSize(10.5);
+                    doc.text(
+                        formatCurrency(boxData.amount),
+                        centerX,
+                        itemY + 14,
+                        { align: 'center' }
+                    );
+
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(7);
+                    doc.setTextColor(mutedColor[0], mutedColor[1], mutedColor[2]);
+                    doc.text(
+                        String(boxData.meta).slice(0, 30),
+                        centerX,
+                        itemY + 18,
+                        { align: 'center' }
+                    );
                 });
 
                 doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
             }
 
             function addSectionTitle(title, y) {
-                doc.setFillColor(
-                    accentSoftColor[0],
-                    accentSoftColor[1],
-                    accentSoftColor[2]
-                );
-                doc.roundedRect(margin, y, contentWidth, 9, 2, 2, 'F');
                 doc.setFont('helvetica', 'bold');
-                doc.setFontSize(12);
+                doc.setFontSize(10.5);
                 doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
-                doc.text(title, margin + 4, y + 6);
+                doc.text(title, margin, y + 1.5);
+                doc.setDrawColor(accentSoftColor[0], accentSoftColor[1], accentSoftColor[2]);
+                doc.setLineWidth(0.7);
+                doc.line(margin, y + 4, pageWidth - margin, y + 4);
                 doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
             }
 
             function addCharts(data) {
-                const chartY = 101;
+                const boxY = chartsSectionY + 8;
+                const boxHeight = 64;
+                const gap = 6;
+                const pieWidth = 62;
+                const barWidth = contentWidth - pieWidth - gap;
+
+                drawChartPanel(
+                    margin,
+                    boxY,
+                    pieWidth,
+                    boxHeight,
+                    'Ingresos vs gastos',
+                    'Relacion general entre entradas y salidas.',
+                    data.pieChartImage,
+                    { x: margin + 2, y: boxY + 15, width: pieWidth - 4, height: 46 }
+                );
+
+                drawChartPanel(
+                    margin + pieWidth + gap,
+                    boxY,
+                    barWidth,
+                    boxHeight,
+                    'Movimientos por categoria',
+                    'Distribucion del volumen acumulado por rubro.',
+                    data.barChartImage,
+                    { x: margin + pieWidth + gap + 1, y: boxY + 15, width: barWidth - 2, height: 48 }
+                );
+            }
+
+            function drawChartPanel(x, y, width, height, title, note, image, imageBox) {
                 doc.setFont('helvetica', 'bold');
-                doc.setFontSize(10);
+                doc.setFontSize(9.5);
+                doc.setTextColor(accentStrongColor[0], accentStrongColor[1], accentStrongColor[2]);
+                doc.text(title, x, y + 2);
 
-                if (data.pieChartImage) {
-                    doc.text('Ingresos vs gastos', margin, chartY);
-                    doc.addImage(data.pieChartImage, 'PNG', margin, chartY + 4, 62, 62);
-                }
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(7.5);
+                doc.setTextColor(mutedColor[0], mutedColor[1], mutedColor[2]);
+                doc.text(note, x, y + 7, { maxWidth: width });
 
-                if (data.barChartImage) {
-                    doc.text('Movimientos por categoria', margin + 72, chartY);
-                    doc.addImage(data.barChartImage, 'PNG', margin + 72, chartY + 4, 110, 62);
+                doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+                doc.setLineWidth(0.2);
+                doc.line(x, y + 10, x + width, y + 10);
+
+                if (image) {
+                    doc.addImage(
+                        image,
+                        'PNG',
+                        imageBox.x,
+                        imageBox.y,
+                        imageBox.width,
+                        imageBox.height
+                    );
+                } else {
+                    doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+                    doc.line(imageBox.x, imageBox.y + 18, imageBox.x + imageBox.width, imageBox.y + 18);
+                    doc.setFontSize(9);
+                    doc.text('Grafico no disponible', imageBox.x + 6, imageBox.y + 16);
                 }
             }
 
@@ -1104,18 +1406,33 @@
                         "-"
                     ]
                 ];
-                addSectionTitle('Resumen de movimientos', 172);
+                addSectionTitle('Resumen de movimientos', 183);
                 doc.autoTable({
-                    startY: 184,
+                    startY: 191,
                     head: movementHeaders,
                     body: data.movements.length ? data.movements : notMovements,
                     margin: { left: margin, right: margin },
-                    styles: { fontSize: 9, cellPadding: 3, textColor: darkColor },
-                    headStyles: { fillColor: accentColor, textColor: [255, 255, 255], fontStyle: 'bold' },
+                    styles: {
+                        fontSize: 9,
+                        cellPadding: 3.5,
+                        textColor: darkColor,
+                        lineColor: borderColor,
+                        lineWidth: 0.1
+                    },
+                    headStyles: {
+                        fillColor: accentColor,
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold',
+                        halign: 'left'
+                    },
                     alternateRowStyles: { fillColor: accentSoftColor },
                     tableLineColor: borderColor,
                     tableLineWidth: 0.1,
-                    bodyStyles: { valign: 'middle' }
+                    bodyStyles: { valign: 'middle' },
+                    columnStyles: {
+                        1: { halign: 'right' },
+                        2: { halign: 'center' }
+                    }
                 });
             }
 
@@ -1151,11 +1468,25 @@
                     head: headCategories,
                     body: data.categories.length ? data.categories : notCategories,
                     margin: { left: margin, right: margin },
-                    styles: { fontSize: 9, cellPadding: 3, textColor: darkColor },
-                    headStyles: { fillColor: accentStrongColor, textColor: [255, 255, 255], fontStyle: 'bold' },
+                    styles: {
+                        fontSize: 9,
+                        cellPadding: 3.5,
+                        textColor: darkColor,
+                        lineColor: borderColor,
+                        lineWidth: 0.1
+                    },
+                    headStyles: {
+                        fillColor: accentStrongColor,
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold',
+                        halign: 'left'
+                    },
                     alternateRowStyles: { fillColor: accentSoftColor },
                     tableLineColor: borderColor,
-                    tableLineWidth: 0.1
+                    tableLineWidth: 0.1,
+                    columnStyles: {
+                        1: { halign: 'right' }
+                    }
                 });
             }
 
